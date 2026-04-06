@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caça Verbos - Aprenda Brincando!</title>
+  <meta name="description" content="Um jogo educativo divertido para aprender verbos em português!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Tela de Login -->
+  <div id="login-page" class="page active">
+    <div class="floating-elements" id="login-floating"></div>
+    
+    <div class="page-content">
+      <!-- Logo -->
+      <div class="logo-container">
+        <div class="logo-circles">
+          <div class="circle circle-orange"></div>
+          <div class="circle circle-purple"></div>
+          <div class="circle circle-green"></div>
+          <div class="circle circle-pink"></div>
+        </div>
+        <div class="magnifying-glass">
+          <div class="glass-circle"></div>
+          <div class="glass-handle"></div>
+          <span class="glass-v">V</span>
+        </div>
+      </div>
+
+      <h1 class="title">CAÇA VERBOS</h1>
+
+      <!-- Formulário de Login -->
+      <form id="login-form" class="form-card">
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="login-email" placeholder="E-MAIL" required>
+        </div>
+        
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="login-senha" placeholder="SENHA" required>
+          <button type="button" class="toggle-password" onclick="togglePassword('login-senha', this)">👁️</button>
+        </div>
+        
+        <a href="#" class="forgot-password">Esqueci minha senha</a>
+        
+        <button type="submit" class="btn-primary">
+          <span class="btn-text">Fazer Login</span>
+          <span class="btn-shine"></span>
+        </button>
+      </form>
+
+      <p class="switch-page">
+        Ainda não possui uma conta? 
+        <a href="#" onclick="showPage('cadastro-page')">Cadastre-se</a>
+      </p>
+
+      <!-- Decorações -->
+      <div class="corner-emoji top-left">📚</div>
+      <div class="corner-emoji top-right">✨</div>
+      <div class="corner-emoji bottom-left">🎯</div>
+      <div class="corner-emoji bottom-right">🌟</div>
+    </div>
+  </div>
+
+  <!-- Tela de Cadastro -->
+  <div id="cadastro-page" class="page">
+    <div class="floating-elements" id="cadastro-floating"></div>
+    
+    <div class="page-content">
+      <button class="btn-back" onclick="showPage('login-page')">
+        <span>←</span>
+      </button>
+
+      <h1 class="title">Cadastro</h1>
+
+      <form id="cadastro-form" class="form-card cadastro-card">
+        <!-- Avatar -->
+        <div class="avatar-section">
+          <div class="avatar-display" id="selected-avatar">🦊</div>
+          <p class="avatar-label">Escolha seu avatar:</p>
+          <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+
+        <div class="form-fields">
+          <div class="input-group">
+            <label>Nome:</label>
+            <input type="text" id="cadastro-nome" placeholder="Seu nome" required>
+          </div>
+          
+          <div class="input-group">
+            <label>E-mail:</label>
+            <input type="email" id="cadastro-email" placeholder="seu@email.com" required>
+          </div>
+          
+          <div class="input-group">
+            <label>Data de Nascimento:</label>
+            <input type="date" id="cadastro-data" required>
+          </div>
+          
+          <div class="input-group">
+            <label>Senha:</label>
+            <input type="password" id="cadastro-senha" placeholder="••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-cadastrar">
+          <span class="btn-text">Cadastrar</span>
+          <span class="btn-shine"></span>
+        </button>
+      </form>
+
+      <div class="corner-emoji top-left">🎨</div>
+      <div class="corner-emoji top-right">🌈</div>
+      <div class="corner-emoji bottom-left">⭐</div>
+      <div class="corner-emoji bottom-right">🎮</div>
+    </div>
+  </div>
+
+  <!-- Animação do Livro -->
+  <div id="book-animation" class="book-overlay">
+    <div class="book-container">
+      <div class="book">
+        <div class="book-cover">
+          <div class="book-logo">
+            <div class="book-circles">
+              <div class="circle circle-orange"></div>
+              <div class="circle circle-purple"></div>
+              <div class="circle circle-green"></div>
+              <div class="circle circle-pink"></div>
+            </div>
+            <span class="book-v">V</span>
+          </div>
+          <h2>CAÇA VERBOS</h2>
+          <p>Aprenda Brincando!</p>
+        </div>
+        <div class="book-page"></div>
+      </div>
+      <p class="book-message">Abrindo seu livro de aventuras...</p>
+    </div>
+  </div>
+
+  <!-- Tela Inicial (Home) -->
+  <div id="home-page" class="page">
+    <div class="notebook-background">
+      <!-- Linhas do caderno -->
+      <div class="notebook-lines"></div>
+      
+      <!-- Doodles decorativos -->
+      <div class="doodles">
+        <svg class="doodle sun" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="12" fill="#FFD93D" stroke="#E8B830" stroke-width="2"/>
+          <g stroke="#FFD93D" stroke-width="3" stroke-linecap="round">
+            <line x1="30" y1="5" x2="30" y2="12"/>
+            <line x1="30" y1="48" x2="30" y2="55"/>
+            <line x1="5" y1="30" x2="12" y2="30"/>
+            <line x1="48" y1="30" x2="55" y2="30"/>
+            <line x1="12" y1="12" x2="17" y2="17"/>
+            <line x1="43" y1="43" x2="48" y2="48"/>
+            <line x1="12" y1="48" x2="17" y2="43"/>
+            <line x1="43" y1="17" x2="48" y2="12"/>
+          </g>
+        </svg>
+        
+        <svg class="doodle rainbow" viewBox="0 0 100 50">
+          <path d="M10 50 Q50 -20 90 50" fill="none" stroke="#FF6B6B" stroke-width="4"/>
+          <path d="M15 50 Q50 -10 85 50" fill="none" stroke="#FFD93D" stroke-width="4"/>
+          <path d="M20 50 Q50 0 80 50" fill="none" stroke="#6BCB77" stroke-width="4"/>
+          <path d="M25 50 Q50 10 75 50" fill="none" stroke="#4D96FF" stroke-width="4"/>
+          <path d="M30 50 Q50 20 70 50" fill="none" stroke="#9B59B6" stroke-width="4"/>
+        </svg>
+        
+        <svg class="doodle bee" viewBox="0 0 50 40">
+          <ellipse cx="25" cy="22" rx="12" ry="10" fill="#FFD93D" stroke="#333" stroke-width="1.5"/>
+          <line x1="15" y1="18" x2="35" y2="18" stroke="#333" stroke-width="2"/>
+          <line x1="14" y1="24" x2="36" y2="24" stroke="#333" stroke-width="2"/>
+          <circle cx="25" cy="12" r="6" fill="#333"/>
+          <ellipse cx="16" cy="10" rx="8" ry="5" fill="rgba(255,255,255,0.6)" stroke="#333" stroke-width="1"/>
+          <ellipse cx="34" cy="10" rx="8" ry="5" fill="rgba(255,255,255,0.6)" stroke="#333" stroke-width="1"/>
+        </svg>
+        
+        <svg class="doodle astronaut" viewBox="0 0 50 70">
+          <ellipse cx="25" cy="18" rx="14" ry="16" fill="#E8E8E8" stroke="#333" stroke-width="1.5"/>
+          <ellipse cx="25" cy="16" rx="9" ry="10" fill="#87CEEB" stroke="#333" stroke-width="1"/>
+          <rect x="15" y="32" width="20" height="25" rx="5" fill="#E8E8E8" stroke="#333" stroke-width="1.5"/>
+          <rect x="8" y="35" width="8" height="18" rx="3" fill="#E8E8E8" stroke="#333" stroke-width="1"/>
+          <rect x="34" y="35" width="8" height="18" rx="3" fill="#E8E8E8" stroke="#333" stroke-width="1"/>
+        </svg>
+        
+        <svg class="doodle frog" viewBox="0 0 50 40">
+          <ellipse cx="25" cy="28" rx="18" ry="12" fill="#6BCB77" stroke="#333" stroke-width="1.5"/>
+          <circle cx="15" cy="14" r="8" fill="#6BCB77" stroke="#333" stroke-width="1.5"/>
+          <circle cx="35" cy="14" r="8" fill="#6BCB77" stroke="#333" stroke-width="1.5"/>
+          <circle cx="15" cy="12" r="4" fill="white"/>
+          <circle cx="35" cy="12" r="4" fill="white"/>
+          <circle cx="16" cy="12" r="2" fill="#333"/>
+          <circle cx="36" cy="12" r="2" fill="#333"/>
+          <path d="M18 32 Q25 36 32 32" fill="none" stroke="#333" stroke-width="1.5"/>
+        </svg>
+        
+        <svg class="doodle cat" viewBox="0 0 50 50">
+          <ellipse cx="25" cy="35" rx="15" ry="12" fill="#888" stroke="#333" stroke-width="1.5"/>
+          <circle cx="25" cy="18" r="12" fill="#888" stroke="#333" stroke-width="1.5"/>
+          <polygon points="14,10 18,20 10,18" fill="#888" stroke="#333" stroke-width="1"/>
+          <polygon points="36,10 32,20 40,18" fill="#888" stroke="#333" stroke-width="1"/>
+          <circle cx="20" cy="16" r="2" fill="#333"/>
+          <circle cx="30" cy="16" r="2" fill="#333"/>
+          <ellipse cx="25" cy="20" rx="2" ry="1.5" fill="#FFB6C1"/>
+          <path d="M23 23 Q25 25 27 23" fill="none" stroke="#333" stroke-width="1"/>
+          <line x1="12" y1="18" x2="8" y2="16" stroke="#333" stroke-width="1"/>
+          <line x1="12" y1="20" x2="8" y2="20" stroke="#333" stroke-width="1"/>
+          <line x1="38" y1="18" x2="42" y2="16" stroke="#333" stroke-width="1"/>
+          <line x1="38" y1="20" x2="42" y2="20" stroke="#333" stroke-width="1"/>
+        </svg>
+        
+        <svg class="doodle kid" viewBox="0 0 50 70">
+          <circle cx="25" cy="15" r="12" fill="#FFDAB9" stroke="#333" stroke-width="1.5"/>
+          <path d="M15 8 Q25 2 35 8 Q38 15 35 12 Q25 8 15 12 Q12 15 15 8" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+          <circle cx="20" cy="14" r="2" fill="#333"/>
+          <circle cx="30" cy="14" r="2" fill="#333"/>
+          <path d="M22 20 Q25 23 28 20" fill="none" stroke="#333" stroke-width="1.5"/>
+          <rect x="18" y="26" width="14" height="22" rx="3" fill="#4D96FF" stroke="#333" stroke-width="1"/>
+          <rect x="10" y="28" width="8" height="16" rx="2" fill="#FFDAB9" stroke="#333" stroke-width="1"/>
+          <rect x="32" y="28" width="8" height="16" rx="2" fill="#FFDAB9" stroke="#333" stroke-width="1"/>
+          <rect x="18" y="48" width="6" height="14" rx="2" fill="#333" stroke="#333" stroke-width="1"/>
+          <rect x="26" y="48" width="6" height="14" rx="2" fill="#333" stroke="#333" stroke-width="1"/>
+        </svg>
+
+        <div class="doodle cloud">☁️</div>
+      </div>
+
+      <!-- Header -->
+      <header class="home-header">
+        <div class="user-profile" id="user-profile">
+          <span class="user-avatar">🦊</span>
+        </div>
+        <div class="logo-small">
+          <div class="mini-circles">
+            <div class="mini-circle orange"></div>
+            <div class="mini-circle purple"></div>
+            <div class="mini-circle green"></div>
+            <div class="mini-circle pink"></div>
+          </div>
+          <span class="mini-v">V</span>
+        </div>
+        <button class="btn-settings" onclick="alert('Configurações em breve!')">⚙️</button>
+      </header>
+
+      <!-- Caderno aberto -->
+      <div class="notebook">
+        <div class="notebook-spine">
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+          <div class="spiral"></div>
+        </div>
+
+        <!-- Página esquerda (verde) -->
+        <div class="notebook-page page-left">
+          <div class="page-icon">
+            <div class="grid-icon">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          
+          <button class="menu-btn btn-verbos" onclick="alert('Verbos Regulares em breve!')">
+            <span class="btn-emoji">🎓</span>
+            <span>Verbos Regulares</span>
+          </button>
+          
+          <div class="page-bottom">
+            <button class="menu-btn btn-niveis" onclick="alert('Níveis em breve!')">
+              <span class="btn-emoji">🎮</span>
+              <span>NÍVEIS</span>
+            </button>
+            <div class="emoji-sad">😔</div>
+          </div>
+        </div>
+
+        <!-- Página direita (roxa) -->
+        <div class="notebook-page page-right">
+          <button class="menu-btn-purple" onclick="alert('Níveis em breve!')">
+            <span class="btn-icon">🏆</span>
+            <span>NÍVEIS</span>
+          </button>
+          
+          <button class="menu-btn-purple" onclick="alert('Cenários em breve!')">
+            <span class="btn-icon">🖼️</span>
+            <span>CENÁRIOS</span>
+          </button>
+          
+          <button class="menu-btn-purple" onclick="alert('Caça Palavras em breve!')">
+            <span class="btn-icon">🔍</span>
+            <span>CAÇA PALAVRAS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="home-footer">
+        <button class="btn-jogar" onclick="alert('Vamos jogar!')">
+          Jogar
+          <span class="arrow">→</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal de Sucesso -->
+  <div id="success-modal" class="modal">
+    <div class="modal-content">
+      <div class="confetti" id="confetti"></div>
+      <div class="success-emoji">🎉</div>
+      <h2>Parabéns!</h2>
+      <p>Cadastro realizado com sucesso!</p>
+      <p class="success-subtitle">Preparando sua aventura...</p>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Carregando...</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
