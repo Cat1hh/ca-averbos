@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caça Verbos - Criar Conta</title>
+  <meta name="description" content="Crie sua conta no Caça Verbos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="cadastro-page" class="page active">
+    <div class="page-content">
+      <!-- Header com Logo -->
+      <header class="auth-header">
+        <div class="auth-logo">
+          <img src="/html/logo%20cacverbos.png" alt="" aria-hidden="true" class="logo-icon">
+          <h1>Caça Verbos</h1>
+        </div>
+        <p class="auth-tagline">Aprenda Inglês Brincando</p>
+      </header>
+
+      <!-- Formulário de Cadastro -->
+      <form id="cadastro-form" class="auth-form signup-form">
+        <h2>Crie sua conta</h2>
+        <p class="form-subtitle">Escolha seu avatar e complete os dados</p>
+
+        <!-- Seleção de Avatar -->
+        <div class="avatar-selector">
+          <label>Escolha seu avatar</label>
+          <div class="avatar-preview" id="selected-avatar">🦊</div>
+          <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+
+        <!-- Dados da Conta -->
+        <div class="input-group">
+          <label for="cadastro-nome">Nome</label>
+          <input 
+            type="text" 
+            id="cadastro-nome" 
+            placeholder="Seu nome completo" 
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="cadastro-email">E-mail</label>
+          <input 
+            type="email" 
+            id="cadastro-email" 
+            placeholder="seu@email.com" 
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="cadastro-data">Data de Nascimento</label>
+          <input 
+            type="date" 
+            id="cadastro-data" 
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="cadastro-senha">Senha</label>
+          <input 
+            type="password" 
+            id="cadastro-senha" 
+            placeholder="Mínimo 8 caracteres" 
+            required
+          >
+          <small class="input-hint">Use letras maiúsculas, minúsculas e números</small>
+        </div>
+
+        <div class="input-group">
+          <label for="cadastro-confirmar-senha">Confirmar Senha</label>
+          <input 
+            type="password" 
+            id="cadastro-confirmar-senha" 
+            placeholder="Repita sua senha" 
+            required
+          >
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <p id="cadastro-error" class="input-error" aria-live="polite"></p>
+
+        <button type="submit" class="btn-auth">
+          Criar Conta
+        </button>
+      </form>
+
+      <!-- Link para Login -->
+      <p class="auth-switch">
+        Já possui uma conta?
+        <a href="index.html">Faça login</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Animação de Carregamento -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Carregando...</p>
+  </div>
+
+  <!-- Modal de Sucesso -->
+  <div id="success-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card success-card" role="dialog" aria-modal="true">
+      <div class="success-content">
+        <div class="success-emoji">🎉</div>
+        <h2>Parabéns!</h2>
+        <p>Sua conta foi criada com sucesso!</p>
+        <p class="success-subtitle">Redirecionando para o menu...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

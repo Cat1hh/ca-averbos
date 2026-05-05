@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fase 1 - Quarto</title>
+  <link rel="icon" href="../../html/logo%20cacverbos.png" type="image/png">
+  <script src="/js/script.js"></script>
+  <link rel="stylesheet" href="css/fase1.css">
+</head>
+<body>
+
+<main class="game">
+  <header class="mission-header">
+    <a class="back-link" href="../tela-fases.html">← Voltar ao mapa</a>
+    <div class="mission-pill">Tema: Quarto</div>
+  </header>
+
+  <section class="quiz-card">
+    <p class="quiz-kicker">Missão do quarto</p>
+    <h1 id="question-prompt" class="quiz-question"></h1>
+    <p class="quiz-help">Complete frases com ações que acontecem no quarto.</p>
+
+    <div class="quiz-progress" aria-label="Progresso da missão">
+      <span>❤️ Vidas: <strong id="vidas">3</strong></span>
+      <span>⭐ Pontos: <strong id="pontos">0</strong></span>
+    </div>
+
+    <div id="question-options" class="answer-grid" aria-label="Alternativas"></div>
+
+    <p id="question-feedback" class="quiz-feedback" aria-live="polite"></p>
+  </section>
+</main>
+
+<!-- Vitória -->
+<div id="winScreen" class="hidden screen">
+  <h1>🎉 Parabéns!</h1>
+  <p id="pontuacaoFinal"></p>
+  <p id="verbosFinal"></p>
+  <p id="estrelas"></p>
+  <button id="next-mission" onclick="voltarAoMapa()">Voltar ao mapa</button>
+</div>
+
+<!-- Derrota -->
+<div id="loseScreen" class="hidden screen">
+  <h1>💀 Você perdeu!</h1>
+  <p>Tente novamente ou ganhe mais vidas</p>
+  <button onclick="reiniciar()">🔄 Tentar novamente</button>
+  <button onclick="ganharVidas()">❤️ Ganhar vidas (anúncio)</button>
+</div>
+
+<script src="js/fase1.js"></script>
+</body>
+</html>

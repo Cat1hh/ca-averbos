@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caça Verbos - Login</title>
+  <meta name="description" content="Faça login no Caça Verbos para começar a aprender.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="login-page" class="page active">
+    <div class="page-content">
+      <!-- Header com Logo -->
+      <header class="auth-header">
+        <div class="auth-logo">
+          <img src="/html/logo%20cacverbos.png" alt="" aria-hidden="true" class="logo-icon">
+          <h1>Caça Verbos</h1>
+        </div>
+        <p class="auth-tagline">Aprenda Inglês Brincando</p>
+      </header>
+
+      <!-- Formulário de Login -->
+      <form id="login-form" class="auth-form">
+        <h2>Bem-vindo de volta</h2>
+        <p class="form-subtitle">Faça login para continuar sua jornada</p>
+
+        <div class="input-group">
+          <label for="login-email">E-mail</label>
+          <input 
+            type="email" 
+            id="login-email" 
+            placeholder="seu@email.com" 
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="login-senha">Senha</label>
+          <div class="password-field">
+            <input 
+              type="password" 
+              id="login-senha" 
+              placeholder="Digite sua senha" 
+              required
+            >
+            <button 
+              type="button" 
+              class="toggle-password" 
+              onclick="togglePassword('login-senha', this)"
+              aria-label="Mostrar/ocultar senha"
+            >👁️</button>
+          </div>
+        </div>
+
+        <a href="#" class="forgot-password" onclick="openForgotPasswordPopup(); return false;">
+          Esqueceu a senha?
+        </a>
+
+        <button type="submit" class="btn-auth">
+          Entrar
+        </button>
+      </form>
+
+      <!-- Link para Cadastro -->
+      <p class="auth-switch">
+        Não possui uma conta?
+        <a href="cadastro.html">Criar conta</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Animação de Carregamento -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Carregando...</p>
+  </div>
+
+  <!-- Modal de Recuperação de Senha -->
+  <div id="forgot-password-popup" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-labelledby="forgot-title" aria-modal="true">
+      <div class="modal-header">
+        <h2 id="forgot-title">Recuperar Senha</h2>
+        <button class="modal-close" type="button" onclick="closeForgotPasswordPopup()" aria-label="Fechar">✖</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-text">Insira seu e-mail para receber instruções de recuperação.</p>
+        <form id="forgot-password-form">
+          <div class="input-group">
+            <label for="forgot-email">E-mail</label>
+            <input type="email" id="forgot-email" placeholder="seu@email.com" required>
+          </div>
+          <p id="forgot-feedback" class="forgot-feedback" aria-live="polite"></p>
+          <button type="submit" class="btn-auth">Enviar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

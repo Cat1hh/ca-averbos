@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Caça Verbos - Fases</title>
+        <meta name="description" content="Escolha uma fase para continuar aprendendo verbos de forma divertida.">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
+        <link rel="stylesheet" href="../css/tela-fase.css">
+</head>
+<body>
+    <div class="fase-page">
+        <div class="floating-shape shape-one"></div>
+        <div class="floating-shape shape-two"></div>
+        <div class="floating-shape shape-three"></div>
+
+        <main class="fase-scene">
+            <header class="fase-topbar">
+                <a class="voltar-menu" href="menu.html" aria-label="Voltar ao menu">
+                    <span class="voltar-seta">←</span>
+                    <span>Menu</span>
+                </a>
+
+                <div class="logo-mini" aria-hidden="true">
+                    <img src="/html/logo%20cacverbos.png" alt="" class="mini-logo-image">
+                </div>
+            </header>
+
+            <section class="hero-card">
+                <p class="hero-kicker">Caminho de missões</p>
+                <h1>Escolha sua fase</h1>
+                <p class="hero-text">Siga a trilha, complete as missões em sequência e desbloqueie as próximas etapas como em um mapa de aventura.</p>
+
+                <div class="hero-stats" aria-label="Resumo das fases">
+                    <span><strong id="fases-concluidas">0</strong> concluídas</span>
+                    <span><strong id="fase-atual">1</strong> atual</span>
+                    <span><strong id="fases-bloqueadas">0</strong> bloqueadas</span>
+                </div>
+            </section>
+
+            <section class="legend-card" aria-label="Legenda das fases">
+                <div class="legend-item">
+                    <span class="legend-dot concluido"></span>
+                    <span>Concluída</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot atual"></span>
+                    <span>Você está aqui</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot bloqueado"></span>
+                    <span>Bloqueada</span>
+                </div>
+            </section>
+
+            <section class="trilha-panel mission-panel">
+                <div class="mission-path" id="trilha" aria-label="Caminho de missões">
+                    <!-- Renderizado via JS -->
+                </div>
+            </section>
+
+            <p class="hero-footer">Dica: observe os nomes e as pistas, porque cada fase ensina um tipo de verbo diferente.</p>
+        </main>
+    </div>
+
+    <script>
+        const fasesDoJogo = [
+            {
+                id: 1,
+                nome: "Ação na Selva",
+                status: "concluido",
+                icone: "🏃🏽",
+                resumo: "Treine verbos que mostram movimento e ação no dia a dia."
+            },
+            {
+                id: 2,
+                nome: "Estado de Atenção",
+                status: "concluido",
+                icone: "🔍",
+                resumo: "Aprenda a observar pistas e perceber o verbo certo."
+            },
+            {
+                id: 3,
+                nome: "Presente Misterioso",
+                status: "atual",
+                icone: "⭐",
+                resumo: "O desafio principal está aqui: escolha o verbo no tempo certo."
+            },
+            {
+                id: 4,
+                nome: "Passado Oculto",
+                status: "bloqueado",
+                icone: "🔒",
+                resumo: "Uma pista sobre acontecimentos que já passaram."
+            },
+            {
+                id: 5,
+                nome: "Baú dos Verbos",
+                status: "bloqueado",
+                icone: "📦",
+                resumo: "A fase final vai juntar tudo o que você aprendeu."
+            }
+        ];
+
+        const trilhaContainer = document.getElementById('trilha');
+        const fasesConcluidasEl = document.getElementById('fases-concluidas');
+        const faseAtualEl = document.getElementById('fase-atual');
+        const fasesBloqueadasEl = document.getElementById('fases-bloqueadas');
+
+        const concluidas = fasesDoJogo.filter((fase) => fase.status === 'concluido').length;
+        const atual = fasesDoJogo.find((fase) => fase.status === 'atual')?.id || 1;
+        const bloqueadas = fasesDoJogo.filter((fase) => fase.status === 'bloqueado').length;
+
+        if (fasesConcluidasEl) fasesConcluidasEl.textContent = concluidas;
+        if (faseAtualEl) faseAtualEl.textContent = atual;
+        if (fasesBloqueadasEl) fasesBloqueadasEl.textContent = bloqueadas;
+
+        fasesDoJogo.forEach((fase, index) => {
+            const phaseButton = document.createElement('button');
+            phaseButton.type = 'button';
+            phaseButton.classList.add('fase-card', 'mission-stop', fase.status);
+            phaseButton.style.setProperty('--offset', index % 2 === 0 ? '-44px' : '44px');
+            phaseButton.setAttribute('aria-label', `${fase.nome}, ${fase.status === 'bloqueado' ? 'bloqueada' : 'disponível'}`);
+
+            const badge = fase.status === 'concluido' ? 'Concluída' : fase.status === 'atual' ? 'Atual' : 'Bloqueada';
+            const actionText = fase.status === 'bloqueado' ? 'Bloqueada' : 'Jogar agora';
+
+            phaseButton.innerHTML = `
+                <span class="mission-node" aria-hidden="true">
+                    <span class="mission-ring"></span>
+                    <span class="mission-number">${fase.id}</span>
+                </span>
+                <span class="mission-content">
+                    <span class="mission-kicker">Missão ${String(fase.id).padStart(2, '0')}</span>
+                    <span class="mission-title">${fase.nome}</span>
+                    <span class="mission-resume">${fase.resumo}</span>
+                </span>
+                <span class="mission-side">
+                    <span class="fase-icone" aria-hidden="true">${fase.icone}</span>
+                    <span class="fase-badge">${badge}</span>
+                    <span class="mission-action">${actionText}</span>
+                </span>
+            `;
+
+            phaseButton.addEventListener('click', () => {
+                if (fase.status !== 'bloqueado') {
+                    window.location.href = `fases/fase${fase.id}.html`;
+                }
+            });
+
+            trilhaContainer.appendChild(phaseButton);
+        });
+    </script>
+
+</body>
+</html>

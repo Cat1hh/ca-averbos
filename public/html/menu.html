@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caça Verbos - Menu</title>
+  <meta name="description" content="Tela inicial do Caça Verbos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
+  <link rel="stylesheet" href="../css/menu.css">
+</head>
+<body>
+  <div id="home-page" class="page active">
+    <div class="menu-shell">
+      <div class="menu-orb menu-orb-one"></div>
+      <div class="menu-orb menu-orb-two"></div>
+
+      <header class="home-header">
+        <button class="user-profile" id="user-profile" type="button" onclick="viewProfile()" aria-label="Abrir perfil">
+          <span class="user-avatar">🦊</span>
+        </button>
+        <div class="brand-pill" aria-label="Caça Verbos">
+          <img src="/html/logo%20cacverbos.png" alt="" aria-hidden="true" class="brand-mark">
+          <span class="brand-text">Caça Verbos</span>
+        </div>
+        <button class="btn-settings" onclick="openSettingsPanel()">⚙️</button>
+      </header>
+
+      <section class="menu-hero">
+        <div class="menu-hero-copy">
+          <h1>Escolha uma atividade</h1>
+          <div class="menu-chips" aria-label="Resumo do menu">
+            <span>2 Módulos Principais</span>
+            <span>Progresso Rastreável</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="module-section">
+        <div class="module-grid">
+          <button class="module-card module-card-large" onclick="openFeatureDemo('verbos-irregulares')">
+            <span class="module-icon">🎓</span>
+            <span class="module-title">Verbos Irregulares</span>
+            <span class="module-text">Mini apresentação com foco em aprendizado guiado.</span>
+          </button>
+
+          <button class="module-card" onclick="openProfileDetailModal()">
+            <span class="module-icon">👤</span>
+            <span class="module-title">Perfil</span>
+            <span class="module-text">Nível <span id="profile-level-badge">1</span></span>
+          </button>
+
+          <div class="module-card streak-display-card" onclick="openStreakModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openStreakModal()">
+            <span class="module-icon">🔥</span>
+            <span class="module-title">Sua Ofensiva</span>
+            <div class="streak-display-number" id="streak-display-number">0</div>
+            <span class="module-text">dias consecutivos</span>
+          </div>
+
+          <section id="ranking-area" class="ranking-area module-card" onclick="openRankingModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openRankingModal()">
+            <div class="section-heading">
+              <h2>Ranking dos Jogadores</h2>
+              <p>Resumo do desempenho da turma.</p>
+            </div>
+            <table id="ranking-table" class="ranking-table ranking-table-menu">
+              <thead>
+                <tr>
+                  <th>Posição</th>
+                  <th>Nome</th>
+                  <th>Pontos</th>
+                  <th>Nível</th>
+                  <th>Verbos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5">Carregando...</td></tr>
+              </tbody>
+            </table>
+            <div id="ranking-user-position" class="ranking-user-position"></div>
+          </section>
+        </div>
+      </section>
+
+      <button class="btn-play-main" onclick="openPlayDevPopup()" aria-label="Começar a jogar">
+        <span class="btn-play-icon">▶</span>
+        <span class="btn-play-text">Jogar Agora</span>
+      </button>
+
+
+
+      <div id="settings-panel" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card" role="dialog" aria-labelledby="settings-title" aria-modal="true">
+          <div class="settings-header">
+            <h2 id="settings-title">Configurações</h2>
+            <button class="settings-close" type="button" onclick="closeSettingsPanel()" aria-label="Fechar configurações">✖</button>
+          </div>
+
+          <div class="settings-body">
+            <label class="volume-control" for="volume-range">
+              <span class="settings-icon">🔊</span>
+              <span class="settings-label">Volume</span>
+              <input id="volume-range" type="range" min="0" max="100" value="70" oninput="updateVolume(this.value)">
+              <span id="volume-value" class="settings-value">70%</span>
+            </label>
+
+            <button class="settings-action" type="button" onclick="viewProfile()">
+              <span class="settings-icon">👤</span>
+              <span>Ver Perfil</span>
+            </button>
+
+            <button class="settings-action danger" type="button" onclick="logout()">
+              <span class="settings-icon">🚪</span>
+              <span>Sair</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-panel" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card profile-card" role="dialog" aria-labelledby="profile-title" aria-modal="true">
+          <div class="settings-header profile-header">
+            <h2 id="profile-title">Meu Perfil</h2>
+            <button class="settings-close" type="button" onclick="closeProfilePanel()" aria-label="Fechar perfil">✖</button>
+          </div>
+
+          <div class="settings-body profile-body">
+            <label class="profile-field" for="profile-name-input">
+              <span class="settings-icon">📝</span>
+              <span class="settings-label">Nome</span>
+              <input id="profile-name-input" class="profile-input" type="text" maxlength="24" placeholder="Seu nome">
+            </label>
+
+            <div class="profile-field">
+              <span class="settings-icon">🎨</span>
+              <span class="settings-label">Cor do Perfil</span>
+              <div id="profile-color-options" class="profile-color-options"></div>
+            </div>
+
+            <div class="profile-field">
+              <span class="settings-icon">😀</span>
+              <span class="settings-label">Avatar</span>
+              <div id="profile-avatar-options" class="profile-avatar-options"></div>
+            </div>
+
+            <div class="profile-preview-wrap">
+              <span class="settings-label">Pré-visualização</span>
+              <div id="profile-preview" class="profile-preview">
+                <span id="profile-preview-avatar">🦊</span>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <button class="settings-action" type="button" onclick="closeProfilePanel()">
+                <span class="settings-icon">↩</span>
+                <span>Cancelar</span>
+              </button>
+              <button class="settings-action save" type="button" onclick="saveProfileCustomizations()">
+                <span class="settings-icon">✅</span>
+                <span>Salvar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="feature-demo-overlay" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card feature-demo-card" role="dialog" aria-labelledby="feature-demo-title" aria-modal="true">
+          <div class="settings-header feature-demo-header">
+            <h2 id="feature-demo-title">Módulo</h2>
+            <button class="settings-close" type="button" onclick="closeFeatureDemo()" aria-label="Fechar demonstração">✖</button>
+          </div>
+
+          <div class="settings-body feature-demo-body">
+            <p id="feature-demo-description" class="feature-demo-description"></p>
+            <p id="feature-demo-status" class="feature-demo-status">Pronto para explorar</p>
+
+            <div id="feature-demo-tags" class="feature-demo-tags"></div>
+
+            <div id="feature-levels" class="feature-levels hidden" aria-live="polite">
+              <p class="feature-levels-summary" id="feature-levels-summary"></p>
+              <div class="feature-levels-grid" id="feature-levels-grid"></div>
+            </div>
+
+            <div id="feature-achievements" class="feature-achievements hidden" aria-live="polite">
+              <p class="feature-achievements-summary" id="feature-achievements-summary"></p>
+              <div class="feature-achievements-grid" id="feature-achievements-grid"></div>
+            </div>
+
+            <div class="feature-demo-actions">
+              <button class="settings-action" type="button" onclick="simulateFeatureAction()">
+                <span class="settings-icon">✨</span>
+                <span>Interagir</span>
+              </button>
+              <button class="settings-action save" type="button" onclick="closeFeatureDemo()">
+                <span class="settings-icon">✅</span>
+                <span>Fechar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="difficulty-popup" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card difficulty-card" role="dialog" aria-labelledby="difficulty-title" aria-modal="true">
+          <div class="settings-header difficulty-header">
+            <h2 id="difficulty-title">Selecione a Dificuldade</h2>
+            <button class="settings-close" type="button" onclick="closeDifficultyPopup()" aria-label="Fechar seleção de dificuldade">✖</button>
+          </div>
+
+          <div class="settings-body difficulty-body" role="group" aria-label="Opções de dificuldade">
+            <button type="button" class="difficulty-option" data-level="facil" onclick="setDifficulty('facil')" title="Fácil">
+              <span class="difficulty-face">😊</span>
+              <span class="difficulty-text">Fácil</span>
+            </button>
+            <button type="button" class="difficulty-option" data-level="medio" onclick="setDifficulty('medio')" title="Médio">
+              <span class="difficulty-face">🙂</span>
+              <span class="difficulty-text">Médio</span>
+            </button>
+            <button type="button" class="difficulty-option" data-level="dificil" onclick="setDifficulty('dificil')" title="Difícil">
+              <span class="difficulty-face">😔</span>
+              <span class="difficulty-text">Difícil</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="logout-popup" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card confirm-card" role="dialog" aria-labelledby="logout-title" aria-modal="true">
+          <div class="settings-header confirm-header">
+            <h2 id="logout-title">Deseja sair?</h2>
+            <button class="settings-close" type="button" onclick="closeLogoutPopup()" aria-label="Fechar confirmação de saída">✖</button>
+          </div>
+
+          <div class="settings-body confirm-body">
+            <p class="confirm-text">Você tem certeza que deseja encerrar a sessão?</p>
+            <div class="confirm-actions">
+              <button class="settings-action" type="button" onclick="closeLogoutPopup()">
+                <span class="settings-icon">❌</span>
+                <span>Não</span>
+              </button>
+              <button class="settings-action danger" type="button" onclick="confirmLogout()">
+                <span class="settings-icon">✅</span>
+                <span>Sim</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="play-dev-popup" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card dev-card" role="dialog" aria-labelledby="play-dev-title" aria-modal="true">
+          <div class="settings-header dev-header">
+            <h2 id="play-dev-title">Módulo em desenvolvimento</h2>
+            <button class="settings-close" type="button" onclick="closePlayDevPopup()" aria-label="Fechar aviso de desenvolvimento">✖</button>
+          </div>
+
+          <div class="settings-body dev-body">
+            <p class="dev-text">Ainda está em desenvolvimento. Em breve você poderá jogar essa parte.</p>
+            <button class="settings-action save" type="button" onclick="closePlayDevPopup()">
+              <span class="settings-icon">👍</span>
+              <span>OK</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-detail-panel" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card profile-detail-card" role="dialog" aria-labelledby="profile-detail-title" aria-modal="true">
+          <div class="settings-header profile-detail-header">
+            <h2 id="profile-detail-title">Meu Progresso</h2>
+            <button class="settings-close" type="button" onclick="closeProfileDetailModal()" aria-label="Fechar perfil detalhado">✖</button>
+          </div>
+
+          <div class="settings-body profile-detail-body">
+            <div class="profile-detail-section">
+              <h3>👤 Perfil</h3>
+              <div class="profile-detail-info">
+                <div class="profile-detail-row">
+                  <span class="label">Nome:</span>
+                  <span id="profile-detail-name" class="value">Jogador</span>
+                </div>
+                <div class="profile-detail-row">
+                  <span class="label">Avatar:</span>
+                  <span id="profile-detail-avatar" class="value">🦊</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-detail-section">
+              <h3>🏆 Conquistas</h3>
+              <div id="profile-detail-achievements" class="profile-achievements-list">
+                <p class="placeholder">Nenhuma conquista desbloqueada ainda.</p>
+              </div>
+            </div>
+
+            <div class="profile-detail-section">
+              <h3>🎯 Ranking Global</h3>
+              <div class="profile-detail-info">
+                <div class="profile-detail-row">
+                  <span class="label">Posição:</span>
+                  <span id="profile-detail-position" class="value">-</span>
+                </div>
+                <div class="profile-detail-row">
+                  <span class="label">Elo:</span>
+                  <span id="profile-detail-elo" class="value">-</span>
+                </div>
+                <div class="profile-detail-row">
+                  <span class="label">Ofensiva (dias):</span>
+                  <span id="profile-detail-streak" class="value">0</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="settings-action" type="button" onclick="closeProfileDetailModal()">
+              <span class="settings-icon">↩</span>
+              <span>Voltar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ranking-modal" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card ranking-modal-card" role="dialog" aria-labelledby="ranking-modal-title" aria-modal="true">
+          <div class="settings-header ranking-modal-header">
+            <h2 id="ranking-modal-title">🏅 Ranking da Turma</h2>
+            <button class="settings-close" type="button" onclick="closeRankingModal()" aria-label="Fechar ranking">✖</button>
+          </div>
+
+          <div class="settings-body ranking-modal-body">
+            <table id="ranking-modal-table" class="ranking-table">
+              <thead>
+                <tr>
+                  <th>Posição</th>
+                  <th>Nome</th>
+                  <th>Pontos</th>
+                  <th>Nível</th>
+                  <th>Verbos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5">Carregando...</td></tr>
+              </tbody>
+            </table>
+
+            <button class="settings-action" type="button" onclick="closeRankingModal()">
+              <span class="settings-icon">↩</span>
+              <span>Voltar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="streak-modal" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card streak-modal-card" role="dialog" aria-labelledby="streak-modal-title" aria-modal="true">
+          <div class="settings-header streak-modal-header">
+            <h2 id="streak-modal-title">🔥 Ofensivas Diárias</h2>
+            <button class="settings-close" type="button" onclick="closeStreakModal()" aria-label="Fechar ofensivas">✖</button>
+          </div>
+
+          <div class="settings-body streak-modal-body">
+            <div class="streak-container">
+              <div class="streak-card">
+                <div class="streak-label">Sua Ofensiva</div>
+                <div class="streak-number" id="streak-current">0</div>
+                <div class="streak-unit">dias</div>
+              </div>
+            </div>
+
+            <div class="streak-history">
+              <h3>Histórico de Atividades</h3>
+              <div id="streak-history-list" class="streak-list">
+                <p class="placeholder">Nenhuma atividade registrada ainda.</p>
+              </div>
+            </div>
+
+            <button class="settings-action" type="button" onclick="closeStreakModal()">
+              <span class="settings-icon">↩</span>
+              <span>Voltar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>
