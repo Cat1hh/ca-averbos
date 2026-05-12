@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/[...all].js" },
+    { "src": "/(.*)", "dest": "/api/[...all].js" }
+  ]
+}
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/[...all].js" },
+    { "src": "/(.*)", "dest": "/api/[...all].js" }
+  ]
+}
