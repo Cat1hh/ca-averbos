@@ -241,6 +241,16 @@ function logout() {
   // Limpar formulários
   document.getElementById('login-form').reset();
   document.getElementById('cadastro-form').reset();
+  // Limpar localStorage de usuário anterior
+  localStorage.removeItem('cacaVerbosToken');
+  localStorage.removeItem('cacaVerbosAvatar');
+  localStorage.removeItem('cacaVerbosUserName');
+  localStorage.removeItem('cacaVerbosProfileColor');
+  localStorage.removeItem('cacaVerbosPhase');
+  localStorage.removeItem('cacaVerbosBonusLives');
+  localStorage.removeItem('cacaVerbosLevel');
+  localStorage.removeItem('cacaVerbosDifficulty');
+  // Reseta variáveis globais
   selectedAvatar = '🦊';
   userName = 'Jogador';
 }

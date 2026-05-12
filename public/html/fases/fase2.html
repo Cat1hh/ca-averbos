@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fase 1 - Quarto</title>
+  <title>Fase 2 - Cozinha</title>
   <link rel="icon" href="../../html/logo%20cacverbos.png" type="image/png">
   <script src="/js/script.js"></script>
   <link rel="stylesheet" href="css/fase1.css">
@@ -13,13 +13,13 @@
 <main class="game">
   <header class="mission-header">
     <a class="back-link" href="../tela-fases.html">← Voltar ao mapa</a>
-    <div class="mission-pill">Tema: Quarto</div>
+    <div class="mission-pill">Tema: Cozinha</div>
   </header>
 
   <section class="quiz-card">
-    <p class="quiz-kicker">Missão do quarto</p>
+    <p class="quiz-kicker">Missão da cozinha</p>
     <h1 id="question-prompt" class="quiz-question"></h1>
-    <p class="quiz-help">Complete frases com ações que acontecem no quarto.</p>
+    <p class="quiz-help">Complete frases com ações que acontecem na cozinha.</p>
 
     <div class="quiz-progress" aria-label="Progresso da missão">
       <span>❤️ Vidas: <strong id="vidas">3</strong></span>
@@ -32,7 +32,6 @@
   </section>
 </main>
 
-<!-- Vitória -->
 <div id="winScreen" class="hidden screen">
   <h1>🎉 Parabéns!</h1>
   <p id="pontuacaoFinal"></p>
@@ -41,7 +40,6 @@
   <button id="next-mission" onclick="voltarAoMapa()">Voltar ao mapa</button>
 </div>
 
-<!-- Derrota -->
 <div id="loseScreen" class="hidden screen">
   <h1>💀 Você perdeu!</h1>
   <p>Tente novamente ou ganhe mais vidas</p>
@@ -49,6 +47,6 @@
   <button onclick="ganharVidas()">❤️ Ganhar vidas (anúncio)</button>
 </div>
 
-<script src="js/fase1.js"></script>
+<script src="js/fase2.js"></script>
 </body>
 </html>

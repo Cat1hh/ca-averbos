@@ -38,12 +38,68 @@
         </div>
       </section>
 
+      <!-- Modal Verbonio -->
+      <div id="verbonio-modal" class="verbonio-overlay" aria-hidden="true">
+        <div class="verbonio-container" role="dialog" aria-labelledby="verbonio-title" aria-modal="true">
+          <div class="verbonio-character">
+            <span class="verbonio-emoji">🧙‍♂️</span>
+          </div>
+          <div class="verbonio-content">
+            <h2 id="verbonio-title">Bem-vindo, Aventureiro!</h2>
+            <p class="verbonio-intro">Olá! Eu me chamo <strong>Verbonio</strong> e sou seu guia nesta jornada pelo mundo dos verbos em português!</p>
+            <p class="verbonio-question">Mas qual é o seu nome?</p>
+            <div class="verbonio-input-group">
+              <input 
+                type="text" 
+                id="verbonio-name-input" 
+                class="verbonio-input" 
+                placeholder="Digite seu nome..." 
+                maxlength="24"
+                autocomplete="off"
+              >
+              <button class="verbonio-btn" type="button" onclick="submitVerbonioName()" aria-label="Confirmar nome">
+                <span class="btn-icon">✨</span>
+                <span class="btn-text">Começar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biblioteca de Verbos Modal -->
+      <div id="verb-library-modal" class="verb-library-overlay" aria-hidden="true">
+        <div class="verb-library-card" role="dialog" aria-labelledby="verb-library-title" aria-modal="true">
+          <div class="verb-library-header">
+            <h2 id="verb-library-title">Biblioteca de Verbos</h2>
+            <button class="settings-close" type="button" onclick="closeVerbLibrary()" aria-label="Fechar">✖</button>
+          </div>
+          <div class="verb-library-body">
+            <div class="verb-library-meta">
+              <p id="verb-library-note">Ver verbos aprendidos nas fases liberadas. Clique em um verbo para ver mais.</p>
+            </div>
+            <div id="verb-library-list" class="verb-library-list">Carregando...</div>
+            <div id="verb-detail" class="verb-detail hidden">
+              <h3 id="verb-detail-title"></h3>
+              <p id="verb-detail-type"></p>
+              <p id="verb-detail-usage"></p>
+              <button class="settings-action" type="button" onclick="closeVerbDetail()">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <section class="module-section">
         <div class="module-grid">
           <button class="module-card module-card-large" onclick="openFeatureDemo('verbos-irregulares')">
             <span class="module-icon">🎓</span>
             <span class="module-title">Verbos Irregulares</span>
             <span class="module-text">Mini apresentação com foco em aprendizado guiado.</span>
+          </button>
+
+          <button class="module-card" onclick="openVerbLibrary()">
+            <span class="module-icon">📚</span>
+            <span class="module-title">Biblioteca de Verbos</span>
+            <span class="module-text">Ver verbos aprendidos e seus usos</span>
           </button>
 
           <button class="module-card" onclick="openProfileDetailModal()">
@@ -386,5 +442,19 @@
   </div>
 
   <script src="../js/script.js"></script>
+  <script>
+    // Recarregar ranking quando a página ganhar foco após voltar de uma fase
+    window.addEventListener('pageshow', () => {
+      console.log('Página voltou ao foco - Recarregando ranking');
+      setTimeout(() => {
+        if (typeof loadRanking === 'function') {
+          loadRanking();
+        }
+        if (typeof loadRankingData === 'function') {
+          loadRankingData();
+        }
+      }, 300);
+    });
+  </script>
 </body>
 </html>

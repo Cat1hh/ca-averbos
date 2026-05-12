@@ -82,6 +82,63 @@ const levelsData = [
   { name: 'Nivel 6', unlocked: false }
 ];
 
+// ===== Popup global estilizado (disponível em todas as páginas) =====
+function showPopup(title, message, options = {}) {
+  let overlay = document.getElementById('cv-modal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'cv-modal-overlay';
+    overlay.className = 'cv-modal-overlay';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(8,10,18,0.6)';
+    overlay.style.zIndex = '1200';
+
+    const modal = document.createElement('div');
+    modal.className = 'cv-modal';
+    modal.style.maxWidth = '520px';
+    modal.style.background = 'linear-gradient(180deg, #fffdfa 0%, #fff6ee 100%)';
+    modal.style.borderRadius = '16px';
+    modal.style.boxShadow = '0 30px 80px rgba(7, 10, 20, 0.6)';
+    modal.style.padding = '1.25rem 1.5rem';
+    modal.style.textAlign = 'left';
+    modal.innerHTML = `
+      <h3 id="cv-modal-title" style="margin:0 0 .25rem 0;font-size:1.1rem;color:#5a3d2b"></h3>
+      <p id="cv-modal-body" style="margin:0 0 .75rem 0;color:#7a5a42;font-size:.98rem"></p>
+      <div class="cv-modal-actions" style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
+        <button class="cv-btn ghost" id="cv-modal-cancel" style="padding:.6rem .9rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;background:transparent;color:#5a3d2b">Fechar</button>
+        <button class="cv-btn cta" id="cv-modal-ok" style="padding:.6rem .9rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;background:#f5a623;color:#fff">OK</button>
+      </div>`;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#cv-modal-cancel').addEventListener('click', closePopup);
+    overlay.querySelector('#cv-modal-ok').addEventListener('click', () => {
+      if (options.onOk) options.onOk();
+      closePopup();
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closePopup(); });
+  }
+
+  overlay.querySelector('#cv-modal-title').textContent = title || '';
+  overlay.querySelector('#cv-modal-body').textContent = message || '';
+  overlay.style.display = 'flex';
+  const modalEl = overlay.querySelector('.cv-modal');
+  if (modalEl) modalEl.classList.add('show');
+}
+
+function closePopup() {
+  const overlay = document.getElementById('cv-modal-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  const modal = overlay.querySelector('.cv-modal');
+  if (modal) modal.classList.remove('show');
+}
+
 // ===== Avatares =====
 const avatarOptions = ['🦊', '🐱', '🐶', '🐰', '🐻', '🦁', '🐼', '🐨', '🦋', '🌈', '⭐', '🎨'];
 
@@ -109,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFloatingElements('cadastro-floating');
   initFormHandlers();
   applyStoredProfile();
+  initVerbonio();
   initSettings();
   initFeatureDemo();
   initDifficultySelector();
@@ -164,10 +222,14 @@ async function loadRanking() {
     } else {
       userPositionDiv.textContent = '';
     }
+    console.log('✅ Ranking na tela principal atualizado');
   } catch (e) {
-    if (table.querySelector('tbody'))
-      table.querySelector('tbody').innerHTML = '<tr><td colspan="5">Erro ao carregar ranking.</td></tr>';
-    if (userPositionDiv) userPositionDiv.textContent = '';
+    console.error('❌ Erro ao carregar ranking:', e);
+    const tbody = table?.querySelector('tbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5">Erro ao carregar ranking.</td></tr>';
+    }
+    if (userPositionDiv) userPositionDiv.textContent = 'Erro ao carregar posição';
   }
 }
 
@@ -276,7 +338,7 @@ async function handleLogin(e) {
   const password = document.getElementById('login-senha')?.value || '';
 
   if (!email || !password) {
-    alert('Informe e-mail e senha.');
+    showPopup('Atenção', 'Informe e-mail e senha.');
     return;
   }
 
@@ -307,11 +369,14 @@ async function handleLogin(e) {
       localStorage.setItem('cacaVerbosProfileColor', selectedProfileColor);
     }
 
+    // Limpar possível progresso salvo localmente para evitar desbloqueios antigos
+    localStorage.removeItem('cacaVerbosPhase');
+
     hideLoading();
     showBookAnimation('menu.html');
   } catch (error) {
     hideLoading();
-    alert(error.message || 'Erro ao realizar login.');
+    showPopup('Erro', error.message || 'Erro ao realizar login.');
   }
 }
 
@@ -340,7 +405,7 @@ async function handleCadastro(e) {
 
   showLoading();
   
-  userName = document.getElementById('cadastro-nome').value || 'Jogador';
+  userName = 'Jogador';
 
   try {
     const response = await fetch(`${API_BASE}/register`, {
@@ -440,15 +505,15 @@ function clearCadastroError() {
   });
 }
 
-// ===== Navegação =====
-function showPage(pageId) {
 // ===== Salvar Pontuação =====
 async function saveScore(level, points, verbsCompleted = 0) {
   const token = localStorage.getItem('cacaVerbosToken');
+  
   if (!token) {
-    alert('Você precisa estar logado para salvar sua pontuação.');
-    return;
+    console.error('Token não encontrado - usuário não autenticado');
+    throw new Error('Não autenticado');
   }
+  
   try {
     const response = await fetch('/api/score', {
       method: 'POST',
@@ -459,17 +524,35 @@ async function saveScore(level, points, verbsCompleted = 0) {
       keepalive: true,
       body: JSON.stringify({ level, points, verbsCompleted })
     });
+    
     const data = await response.json();
+    
     if (!response.ok) {
-      throw new Error(data.message || 'Erro ao salvar pontuação.');
+      console.error('Erro ao salvar score:', data.message);
+      throw new Error(data.message || 'Erro ao salvar pontuação');
     }
-    // Pontuação salva com sucesso
+    
+    console.log('✅ Pontuação salva com sucesso!', data);
     updateProfileLevelBadge();
+    
+    // Recarregar ranking após salvar pontos
+    setTimeout(() => {
+      console.log('Recarregando ranking...');
+      loadRanking();
+      loadRankingData();
+    }, 500);
+      console.log('📊 Pontos salvos:', { level, points, pointsEarned: data.pointsEarned, isReplay: data.isReplay });
+    
     return data;
+    
   } catch (error) {
-    alert(error.message || 'Erro ao salvar pontuação.');
+    console.error('❌ Erro ao salvar pontuação:', error);
+    throw error;
   }
 }
+
+// ===== Navegação =====
+function showPage(pageId) {
   const routes = {
     'login-page': 'index.html',
     'cadastro-page': 'cadastro.html',
@@ -560,6 +643,93 @@ function applyStoredProfile() {
   }
 }
 
+function initVerbonio() {
+  const storedName = localStorage.getItem('cacaVerbosUserName');
+  
+  // Se não tem nome salvo, mostra o modal do Verbonio
+  if (!storedName || storedName === 'Jogador') {
+    showVerbonioModal();
+  }
+}
+
+function showVerbonioModal() {
+  const modal = document.getElementById('verbonio-modal');
+  if (modal) {
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.add('active');
+    
+    // Foca no input do nome
+    const nameInput = document.getElementById('verbonio-name-input');
+    if (nameInput) {
+      nameInput.focus();
+    }
+  }
+}
+
+function hideVerbonioModal() {
+  const modal = document.getElementById('verbonio-modal');
+  if (modal) {
+    modal.setAttribute('aria-hidden', 'true');
+    modal.classList.remove('active');
+  }
+}
+
+function submitVerbonioName() {
+  const nameInput = document.getElementById('verbonio-name-input');
+  if (!nameInput) return;
+  
+  const name = nameInput.value.trim();
+  
+  if (name === '') {
+    alert('Por favor, digite seu nome!');
+    return;
+  }
+  
+  // Salva o nome localmente
+  userName = name;
+  localStorage.setItem('cacaVerbosUserName', userName);
+  
+  // Atualiza o nome no servidor
+  updateUserNameOnServer(name);
+  
+  // Fecha o modal
+  hideVerbonioModal();
+}
+
+async function updateUserNameOnServer(name) {
+  try {
+    const token = getAuthToken();
+    if (!token) return;
+    
+    const response = await fetch('/api/auth/update-profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ name })
+    });
+    
+    if (!response.ok) {
+      console.error('Erro ao atualizar nome no servidor');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar nome:', error);
+  }
+}
+
+// Adicionar listener para Enter na página do menu
+document.addEventListener('DOMContentLoaded', function() {
+  const verbonioInput = document.getElementById('verbonio-name-input');
+  if (verbonioInput) {
+    verbonioInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        submitVerbonioName();
+      }
+    });
+  }
+});
+
 function initSettings() {
   const savedVolume = localStorage.getItem('cacaVerbosVolume');
   if (savedVolume !== null) {
@@ -621,6 +791,199 @@ function initFeatureDemo() {
       closeFeatureDemo();
     }
   });
+}
+
+// ===== Biblioteca de Verbos =====
+async function openVerbLibrary() {
+  try {
+    console.log('[VERB LIB] openVerbLibrary called');
+    const modal = document.getElementById('verb-library-modal');
+    if (!modal) {
+      console.warn('[VERB LIB] modal element not found');
+      return;
+    }
+
+    // Busca progresso do usuário para saber fases liberadas
+    let currentPhase = 1;
+    try {
+      const res = await fetch('/api/progression', { headers: getAuthHeader() });
+      if (res.ok) {
+        const data = await res.json();
+        currentPhase = Number(data.current_phase ?? 1);
+        console.log('[VERB LIB] currentPhase from API:', currentPhase, 'data:', data);
+      }
+    } catch (e) {
+      console.warn('Não foi possível obter progresso:', e);
+    }
+
+    // Carrega verbos APENAS das fases completadas (fonte de verdade)
+    let verbs = [];
+    try {
+      verbs = await loadVerbsFromPhases(currentPhase);
+      console.log('[VERB LIB] loadVerbsFromPhases returned', verbs.length, 'verbs for currentPhase=', currentPhase);
+    } catch (e) {
+      console.warn('Erro ao carregar verbos das fases:', e);
+      verbs = [];
+    }
+
+    // Se nenhuma fase completada, mostrar mensagem vazia
+    if (!Array.isArray(verbs) || verbs.length === 0) {
+      console.log('[VERB LIB] Nenhum verbo disponível - currentPhase:', currentPhase);
+    }
+
+    console.log('[VERB LIB] Renderizando', verbs.length, 'verbos com currentPhase=', currentPhase);
+    renderVerbLibrary(verbs, currentPhase);
+
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.add('active');
+  } catch (e) {
+    console.error('Erro ao abrir biblioteca de verbos', e);
+  }
+}
+
+function closeVerbLibrary() {
+  const modal = document.getElementById('verb-library-modal');
+  if (!modal) return;
+  modal.setAttribute('aria-hidden', 'true');
+  modal.classList.remove('active');
+  const list = document.getElementById('verb-library-list');
+  if (list) list.innerHTML = 'Carregando...';
+  closeVerbDetail();
+}
+
+function renderVerbLibrary(verbs, currentPhase) {
+  const list = document.getElementById('verb-library-list');
+  if (!list) return;
+  if (!Array.isArray(verbs) || verbs.length === 0) {
+    list.innerHTML = '<div>Nenhum verbo encontrado.</div>';
+    return;
+  }
+
+  console.log('[VERB LIB] renderVerbLibrary - currentPhase:', currentPhase, 'verbs.length:', verbs.length);
+
+  // Agrupar por fase e ordenar
+  verbs.sort((a,b) => (a.phase || 0) - (b.phase || 0) || a.infinitive.localeCompare(b.infinitive));
+
+  const fragment = document.createDocumentFragment();
+  verbs.forEach((v) => {
+    const item = document.createElement('div');
+    item.className = 'verb-item';
+    // Um verbo fica bloqueado se sua fase é MAIOR que a fase atual
+    // currentPhase = 0 significa ainda não começou nenhuma fase (novo usuário)
+    // currentPhase = 1 significa completou fase 1, pode acessar fase 2
+    const verbPhase = Number(v.phase || 1);
+    const locked = verbPhase > Number(currentPhase || 0);
+    console.log(`[VERB LIB] verb="${v.infinitive}" phase=${verbPhase} currentPhase=${currentPhase} locked=${locked}`);
+    if (locked) item.classList.add('locked');
+
+    item.innerHTML = `
+      <div class="verb-title">${v.infinitive} ${locked ? '🔒' : ''} <span class="verb-sub">— ${v.translation || ''}</span></div>
+      <div class="verb-sub">Fase ${v.phase || 1} • ${locked ? '🔒 bloqueado' : 'aprendido'}</div>
+    `;
+
+    if (!locked) {
+      item.addEventListener('click', () => openVerbDetailPage(v));
+    } else {
+      item.title = 'Bloqueado: complete as fases anteriores para liberar este verbo.';
+    }
+
+    fragment.appendChild(item);
+  });
+
+  list.innerHTML = '';
+  list.appendChild(fragment);
+}
+
+// Carrega verbos corretos a partir dos arquivos de fase (fase1.js, fase2.js...)
+async function loadVerbsFromPhases(currentPhase) {
+  const verbs = [];
+  // Importante: currentPhase = 0 significa novo usuário, não carrega nada
+  // currentPhase = 1 significa começou fase 1, pode ver fase 1
+  // currentPhase = 2 significa completou fase 1, pode ver fases 1 e 2
+  const maxPhase = Math.max(0, Number(currentPhase || 0));
+  console.log('[VERB LIB] loadVerbsFromPhases - maxPhase:', maxPhase);
+  
+  for (let phase = 1; phase <= maxPhase; phase += 1) {
+    const path = `/html/fases/js/fase${phase}.js`;
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const text = await res.text();
+
+      // Extrair blocos de questões 'questions = [ { ... } ]' ou ocorrências de 'correct: true' com 'text'
+      // Regex simples para capturar objetos options: { key: '', text: '...', correct: true }
+      const optionRegex = /\{[^}]*text:\s*['"]([^'"]+)['"][^}]*correct:\s*true[^}]*\}/gmi;
+      let m;
+      const seen = new Set();
+      while ((m = optionRegex.exec(text)) !== null) {
+        const verbText = m[1].trim();
+        if (!verbText) continue;
+        const id = verbText.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_çãõáéíóúâêîôûàèù]/gi, '');
+        if (seen.has(id)) continue;
+        seen.add(id);
+        verbs.push({ id, infinitive: verbText, translation: '', type: 'aprendido', usage: `Aprendido na fase ${phase}.`, phase });
+      }
+    } catch (e) {
+      // ignora e continua
+      console.warn('Erro ao ler fase', phase, e);
+      continue;
+    }
+  }
+
+  console.log('[VERB LIB] loadVerbsFromPhases - loaded', verbs.length, 'verbs');
+  return verbs;
+}
+
+function showVerbDetail(v) {
+  const detail = document.getElementById('verb-detail');
+  if (!detail) return;
+  document.getElementById('verb-detail-title').textContent = `${v.infinitive} — ${v.translation || ''}`;
+  document.getElementById('verb-detail-type').textContent = `Tipo: ${v.type || 'regular'}`;
+  document.getElementById('verb-detail-usage').textContent = `Quando usar: ${v.usage || '—'}`;
+  detail.classList.remove('hidden');
+}
+
+function closeVerbDetail() {
+  const detail = document.getElementById('verb-detail');
+  if (!detail) return;
+  detail.classList.add('hidden');
+}
+
+async function openVerbDetailPage(vOrId) {
+  if (!vOrId) return;
+  let verbObj = null;
+
+  if (typeof vOrId === 'object') {
+    verbObj = vOrId;
+  } else {
+    const id = String(vOrId);
+    // tentar carregar verbo das fases e do JSON
+    try {
+      const verbsFromPhases = await loadVerbsFromPhases(8);
+      const jsonRes = await fetch('/data/verbs.json');
+      const json = jsonRes.ok ? await jsonRes.json() : [];
+      const all = [...(verbsFromPhases || []), ...(json || [])];
+      verbObj = all.find(x => String(x.id) === id || String((x.infinitive || '').toLowerCase().replace(/\s+/g,'_')) === id);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  const idParam = encodeURIComponent((verbObj && verbObj.id) ? verbObj.id : (typeof vOrId === 'string' ? vOrId : ''));
+  const url = `/html/verb.html?id=${idParam}`;
+
+  const newWin = window.open(url, '_blank');
+  if (!newWin) {
+    // popup bloqueado — mostrar modal com detalhes como fallback
+    if (verbObj) {
+      showVerbDetail(verbObj);
+      // abrir biblioteca modal if closed
+      const libModal = document.getElementById('verb-library-modal');
+      if (libModal) libModal.classList.remove('active');
+    } else {
+      alert('Não foi possível abrir a nova aba e detalhes não estão disponíveis.');
+    }
+  }
 }
 
 function initForgotPasswordPopup() {
@@ -788,29 +1151,50 @@ function loadRankingData() {
   if (!table) return;
 
   try {
-    const res = fetch('/api/ranking');
-    res.then(response => response.json()).then(data => {
-      if (data.ranking) {
-        const ranking = data.ranking;
-        let html = '';
-        ranking.forEach((row, i) => {
-          html += `<tr>
-            <td>${i + 1}</td>
-            <td>${row.avatar ? row.avatar + ' ' : ''}${row.name}</td>
-            <td>${row.total_points}</td>
-            <td>${row.max_level}</td>
-            <td>${row.total_verbs}</td>
-          </tr>`;
-        });
-        table.querySelector('tbody').innerHTML = html || '<tr><td colspan="5">Nenhum dado de ranking.</td></tr>';
-      }
-    }).catch(() => {
+    fetch('/api/ranking')
+      .then(response => response.json())
+      .then(data => {
+        if (data.ranking) {
+          const ranking = data.ranking;
+          let html = '';
+          ranking.forEach((row, i) => {
+            html += `<tr>
+              <td>${i + 1}</td>
+              <td>${row.avatar ? row.avatar + ' ' : ''}${row.name}</td>
+              <td>${row.total_points}</td>
+              <td>${row.max_level}</td>
+              <td>${row.total_verbs}</td>
+            </tr>`;
+          });
+          table.querySelector('tbody').innerHTML = html || '<tr><td colspan="5">Nenhum dado de ranking.</td></tr>';
+          console.log('✅ Ranking no modal atualizado');
+        } else {
+          console.warn('⚠️ Resposta do ranking vazia');
+          table.querySelector('tbody').innerHTML = '<tr><td colspan="5">Nenhum dado de ranking.</td></tr>';
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao carregar ranking do modal:', error);
+        table.querySelector('tbody').innerHTML = '<tr><td colspan="5">Erro ao carregar ranking.</td></tr>';
+      });
+  } catch (error) {
+    console.error('❌ Erro ao buscar ranking:', error);
+    if (table?.querySelector('tbody')) {
       table.querySelector('tbody').innerHTML = '<tr><td colspan="5">Erro ao carregar ranking.</td></tr>';
-    });
-  } catch {
-    table.querySelector('tbody').innerHTML = '<tr><td colspan="5">Erro ao carregar ranking.</td></tr>';
+    }
   }
 }
+
+// Auto-refresh ranking quando a página ganhar foco
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    console.log('📲 Página ganhou foco - Recarregando ranking');
+    setTimeout(() => {
+      loadRanking();
+      loadRankingData();
+    }, 300);
+  }
+});
 
 function openStreakModal() {
   const modal = document.getElementById('streak-modal');
@@ -843,16 +1227,26 @@ function loadStreakData() {
       document.getElementById('streak-current').textContent = streak;
       updateStreakBadge();
       
-      // Dados simulados de histórico (em produção, viriam do servidor)
-      const history = [
-        { date: 'Hoje', status: '✅ Jogou', time: '45 min' },
-        { date: 'Ontem', status: '✅ Jogou', time: '30 min' },
-        { date: '2 dias atrás', status: '✅ Jogou', time: '60 min' },
-        { date: '3 dias atrás', status: '❌ Não jogou', time: '-' },
-        { date: '4 dias atrás', status: '✅ Jogou', time: '25 min' }
-      ];
-      
+      // Gerar histórico dinâmico com base em play_logs (quando disponível) ou fallback para streak
       const historyList = document.getElementById('streak-history-list');
+      const daysToShow = 7;
+      const playLogs = Array.isArray(data.play_logs) ? data.play_logs : [];
+      const logsMap = new Map();
+      playLogs.forEach(l => logsMap.set(l.play_date, Number(l.minutes_played || 0)));
+
+      // If no detailed logs, fall back to using last_played_date and current_streak
+      const today = new Date();
+      const history = [];
+      for (let i = 0; i < daysToShow; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const iso = d.toISOString().split('T')[0];
+        const label = i === 0 ? 'Hoje' : i === 1 ? 'Ontem' : `${i} dias atrás`;
+        const minutes = logsMap.has(iso) ? logsMap.get(iso) : null;
+        const played = minutes !== null;
+        history.push({ date: label, status: played ? '✅ Jogou' : '❌ Não jogou', time: played ? `${minutes} min` : '-' });
+      }
+
       if (history.length > 0) {
         historyList.innerHTML = history
           .map(h => `
@@ -875,16 +1269,31 @@ function loadStreakData() {
     // Sem token, use localStorage
     const streak = localStorage.getItem('cacaVerbosStreak') || '0';
     document.getElementById('streak-current').textContent = streak;
-    
-    const history = [
-      { date: 'Hoje', status: '✅ Jogou', time: '45 min' },
-      { date: 'Ontem', status: '✅ Jogou', time: '30 min' },
-      { date: '2 dias atrás', status: '✅ Jogou', time: '60 min' },
-      { date: '3 dias atrás', status: '❌ Não jogou', time: '-' },
-      { date: '4 dias atrás', status: '✅ Jogou', time: '25 min' }
-    ];
-    
+    // Gerar histórico local baseado no valor salvo (assume última jogada hoje)
+    const streakCount = Number(streak || 0);
     const historyList = document.getElementById('streak-history-list');
+    const daysToShow = 7;
+    const playedDates = new Set();
+    if (streakCount > 0) {
+      const today = new Date();
+      for (let i = 0; i < streakCount; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        playedDates.add(d.toISOString().split('T')[0]);
+      }
+    }
+
+    const today = new Date();
+    const history = [];
+    for (let i = 0; i < daysToShow; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const iso = d.toISOString().split('T')[0];
+      const label = i === 0 ? 'Hoje' : i === 1 ? 'Ontem' : `${i} dias atrás`;
+      const played = playedDates.has(iso);
+      history.push({ date: label, status: played ? '✅ Jogou' : '❌ Não jogou', time: '-' });
+    }
+
     if (history.length > 0) {
       historyList.innerHTML = history
         .map(h => `
@@ -934,7 +1343,7 @@ function updateStreakBadge() {
   }
 }
 
-function updateUserStreak() {
+function updateUserStreak(payload = {}) {
   const token = getAuthToken();
   
   if (!token) return Promise.reject('Sem token');
@@ -944,13 +1353,94 @@ function updateUserStreak() {
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeader()
-    }
+    },
+    body: JSON.stringify(payload)
   })
   .then(res => res.json())
   .then(data => {
     updateStreakBadge();
     return data;
   });
+}
+
+async function getUserProgress() {
+  const token = getAuthToken();
+
+  if (!token) {
+    return { current_phase: 1, bonus_lives: 0, chest_claimed: false, achievements: [] };
+  }
+
+  try {
+    const response = await fetch('/api/progression', {
+      headers: getAuthHeader(),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Erro ao buscar progresso.');
+    }
+
+    localStorage.setItem('cacaVerbosPhase', String(data.current_phase || 1));
+    localStorage.setItem('cacaVerbosBonusLives', String(data.bonus_lives || 0));
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar progresso:', error);
+    // Se houver token e falhar a requisição, assumir fase inicial (mais seguro para novas contas)
+    return {
+      current_phase: 1,
+      bonus_lives: 0,
+      chest_claimed: false,
+      achievements: [],
+    };
+  }
+}
+
+async function advanceUserProgress(completedLevel) {
+  const token = getAuthToken();
+
+  if (!token) return { current_phase: 1, bonus_lives: 0, chest_claimed: false, achievements: [] };
+
+  const response = await fetch('/api/progression/complete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    body: JSON.stringify({ completedLevel }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Erro ao avançar progresso.');
+  }
+
+  localStorage.setItem('cacaVerbosPhase', String(data.current_phase || 1));
+  localStorage.setItem('cacaVerbosBonusLives', String(data.bonus_lives || 0));
+  return data;
+}
+
+async function openChestReward() {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error('Sem token');
+  }
+
+  const response = await fetch('/api/progression/chest/open', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Erro ao abrir baú.');
+  }
+
+  localStorage.setItem('cacaVerbosBonusLives', String(data.bonus_lives || 0));
+  return data;
 }
 
 function updateProfileLevelBadge() {
@@ -1382,10 +1872,18 @@ function logout() {
 
 function confirmLogout() {
   closeLogoutPopup();
+  // Limpar TODOS os campos de perfil do usuário anterior
   localStorage.removeItem('cacaVerbosToken');
   localStorage.removeItem('cacaVerbosAvatar');
   localStorage.removeItem('cacaVerbosUserName');
+  localStorage.removeItem('cacaVerbosProfileColor');
+  localStorage.removeItem('cacaVerbosPhase');
+  localStorage.removeItem('cacaVerbosBonusLives');
+  localStorage.removeItem('cacaVerbosLevel');
+  localStorage.removeItem('cacaVerbosDifficulty');
+  // Reseta variáveis globais
   selectedAvatar = '🦊';
   userName = 'Jogador';
+  selectedProfileColor = '#f5a623';
   window.location.href = 'index.html';
 }

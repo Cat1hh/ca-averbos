@@ -10,6 +10,43 @@
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
         <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
         <link rel="stylesheet" href="../css/tela-fase.css">
+                <style>
+                /* Modal estilizado para notificações */
+                .cv-modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(8,10,18,0.6);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1200;
+                    padding: 1rem;
+                }
+
+                .cv-modal {
+                    width: 100%;
+                    max-width: 520px;
+                    background: linear-gradient(180deg, #fffdfa 0%, #fff6ee 100%);
+                    border-radius: 16px;
+                    box-shadow: 0 30px 80px rgba(7, 10, 20, 0.6);
+                    padding: 1.25rem 1.5rem;
+                    text-align: left;
+                    transform: translateY(10px) scale(.98);
+                    transition: all 220ms cubic-bezier(.2,.9,.3,1);
+                }
+
+                .cv-modal.show { display: block; transform: translateY(0) scale(1); }
+
+                .cv-modal h3 { margin: 0 0 .25rem 0; font-size: 1.1rem; color: #5a3d2b; }
+                .cv-modal p { margin: 0 0 .75rem 0; color: #7a5a42; font-size: .98rem; }
+
+                .cv-modal-actions { display:flex; gap:.5rem; justify-content:flex-end; margin-top: .5rem; }
+                .cv-btn { padding:.6rem .9rem; border-radius: 10px; border: none; font-weight:700; cursor:pointer }
+                .cv-btn.cta { background:#f5a623; color:#fff; box-shadow:0 8px 24px rgba(245,166,35,.18) }
+                .cv-btn.ghost { background:transparent; color:#5a3d2b }
+
+                @media (max-width:520px){ .cv-modal { padding:1rem; border-radius:12px } }
+                </style>
 </head>
 <body>
     <div class="fase-page">
@@ -67,91 +104,228 @@
     </div>
 
     <script>
-        const fasesDoJogo = [
-            {
-                id: 1,
-                nome: "Ação na Selva",
-                status: "concluido",
-                icone: "🏃🏽",
-                resumo: "Treine verbos que mostram movimento e ação no dia a dia."
-            },
-            {
-                id: 2,
-                nome: "Estado de Atenção",
-                status: "concluido",
-                icone: "🔍",
-                resumo: "Aprenda a observar pistas e perceber o verbo certo."
-            },
-            {
-                id: 3,
-                nome: "Presente Misterioso",
-                status: "atual",
-                icone: "⭐",
-                resumo: "O desafio principal está aqui: escolha o verbo no tempo certo."
-            },
-            {
-                id: 4,
-                nome: "Passado Oculto",
-                status: "bloqueado",
-                icone: "🔒",
-                resumo: "Uma pista sobre acontecimentos que já passaram."
-            },
-            {
-                id: 5,
-                nome: "Baú dos Verbos",
-                status: "bloqueado",
-                icone: "📦",
-                resumo: "A fase final vai juntar tudo o que você aprendeu."
-            }
-        ];
-
         const trilhaContainer = document.getElementById('trilha');
         const fasesConcluidasEl = document.getElementById('fases-concluidas');
         const faseAtualEl = document.getElementById('fase-atual');
         const fasesBloqueadasEl = document.getElementById('fases-bloqueadas');
 
-        const concluidas = fasesDoJogo.filter((fase) => fase.status === 'concluido').length;
-        const atual = fasesDoJogo.find((fase) => fase.status === 'atual')?.id || 1;
-        const bloqueadas = fasesDoJogo.filter((fase) => fase.status === 'bloqueado').length;
+        function getAuthToken() {
+            return localStorage.getItem('cacaVerbosToken');
+        }
 
-        if (fasesConcluidasEl) fasesConcluidasEl.textContent = concluidas;
-        if (faseAtualEl) faseAtualEl.textContent = atual;
-        if (fasesBloqueadasEl) fasesBloqueadasEl.textContent = bloqueadas;
+        function getChestSVG() {
+            return `<svg width="40" height="40" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+              <defs>
+                <linearGradient id="chestGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#d4a574;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#a67c52;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="lidGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e8c98e;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#d4a574;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="lockGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#f5a623;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#e89a1e;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="80" width="120" height="80" rx="8" fill="url(#chestGradSmall)" stroke="#7a5a42" stroke-width="2"/>
+              <rect x="35" y="85" width="5" height="75" rx="2" fill="#7a5a42" opacity="0.6"/>
+              <rect x="160" y="85" width="5" height="75" rx="2" fill="#7a5a42" opacity="0.6"/>
+              <path d="M 50 80 Q 50 40, 100 35 Q 150 40, 150 80" fill="url(#lidGradSmall)" stroke="#7a5a42" stroke-width="2"/>
+              <path d="M 52 80 Q 52 48, 100 43 Q 148 48, 148 80" fill="#d4a574" opacity="0.3"/>
+              <circle cx="100" cy="85" r="12" fill="url(#lockGradSmall)" stroke="#c17e1f" stroke-width="1.5"/>
+              <rect x="96" y="82" width="8" height="5" rx="1" fill="#8b5a00"/>
+              <ellipse cx="70" cy="100" rx="20" ry="15" fill="white" opacity="0.15"/>
+              <circle cx="80" cy="140" r="4" fill="#f5a623" opacity="0.8"/>
+              <circle cx="100" cy="145" r="4" fill="#f5a623" opacity="0.8"/>
+              <circle cx="120" cy="142" r="4" fill="#f5a623" opacity="0.8"/>
+              <rect x="95" y="25" width="10" height="20" rx="2" fill="#ff6b9d"/>
+              <circle cx="100" cy="23" r="4" fill="#ff6b9d"/>
+            </svg>`;
+        }
 
-        fasesDoJogo.forEach((fase, index) => {
-            const phaseButton = document.createElement('button');
-            phaseButton.type = 'button';
-            phaseButton.classList.add('fase-card', 'mission-stop', fase.status);
-            phaseButton.style.setProperty('--offset', index % 2 === 0 ? '-44px' : '44px');
-            phaseButton.setAttribute('aria-label', `${fase.nome}, ${fase.status === 'bloqueado' ? 'bloqueada' : 'disponível'}`);
-
-            const badge = fase.status === 'concluido' ? 'Concluída' : fase.status === 'atual' ? 'Atual' : 'Bloqueada';
-            const actionText = fase.status === 'bloqueado' ? 'Bloqueada' : 'Jogar agora';
-
-            phaseButton.innerHTML = `
-                <span class="mission-node" aria-hidden="true">
-                    <span class="mission-ring"></span>
-                    <span class="mission-number">${fase.id}</span>
-                </span>
-                <span class="mission-content">
-                    <span class="mission-kicker">Missão ${String(fase.id).padStart(2, '0')}</span>
-                    <span class="mission-title">${fase.nome}</span>
-                    <span class="mission-resume">${fase.resumo}</span>
-                </span>
-                <span class="mission-side">
-                    <span class="fase-icone" aria-hidden="true">${fase.icone}</span>
-                    <span class="fase-badge">${badge}</span>
-                    <span class="mission-action">${actionText}</span>
-                </span>
-            `;
-
-            phaseButton.addEventListener('click', () => {
-                if (fase.status !== 'bloqueado') {
-                    window.location.href = `fases/fase${fase.id}.html`;
+            // Função para mostrar popup estilizado
+            function showPopup(title, message, options = {}) {
+                let overlay = document.getElementById('cv-modal-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'cv-modal-overlay';
+                    overlay.className = 'cv-modal-overlay';
+                    overlay.innerHTML = `
+                        <div class="cv-modal" role="dialog" aria-modal="true">
+                            <h3 id="cv-modal-title"></h3>
+                            <p id="cv-modal-body"></p>
+                            <div class="cv-modal-actions">
+                                <button class="cv-btn ghost" id="cv-modal-cancel">Fechar</button>
+                                <button class="cv-btn cta" id="cv-modal-ok">OK</button>
+                            </div>
+                        </div>`;
+                    document.body.appendChild(overlay);
+                    overlay.querySelector('#cv-modal-cancel').addEventListener('click', closePopup);
+                    overlay.querySelector('#cv-modal-ok').addEventListener('click', () => {
+                        if (options.onOk) options.onOk();
+                        closePopup();
+                    });
+                    overlay.addEventListener('click', (e) => { if (e.target === overlay) closePopup(); });
                 }
-            });
+                overlay.querySelector('#cv-modal-title').textContent = title || '';
+                overlay.querySelector('#cv-modal-body').textContent = message || '';
+                overlay.style.display = 'flex';
+                overlay.querySelector('.cv-modal').classList.add('show');
+            }
 
-            trilhaContainer.appendChild(phaseButton);
+            function closePopup() {
+                const overlay = document.getElementById('cv-modal-overlay');
+                if (!overlay) return;
+                overlay.style.display = 'none';
+                const modal = overlay.querySelector('.cv-modal');
+                if (modal) modal.classList.remove('show');
+            }
+
+        async function carregarMapa() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            let progresso = { current_phase: 1, chest_claimed: false };
+            try {
+                const response = await fetch('/api/progression', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    progresso = data;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar progresso do mapa:', error);
+            }
+
+            const currentPhase = Number(progresso.current_phase || 1);
+            const chestClaimed = Boolean(progresso.chest_claimed);
+
+            const fasesDoJogo = [
+                {
+                    id: 1,
+                    nome: 'Ação na Selva',
+                    status: currentPhase > 1 ? 'concluido' : 'atual',
+                    icone: '🏃🏽',
+                    resumo: 'Treine verbos que mostram movimento e ação no dia a dia.',
+                    href: '/fases/fase1.html'
+                },
+                {
+                    id: 2,
+                    nome: 'Cozinha em Foco',
+                    status: currentPhase >= 3 ? 'concluido' : currentPhase === 2 ? 'atual' : 'bloqueado',
+                    icone: '🍽️',
+                    resumo: 'Mais verbos, mais precisão e o caminho até o baú.',
+                    href: '/fases/fase2.html'
+                },
+                {
+                    id: 3,
+                    nome: 'Baú dos Verbos',
+                    status: currentPhase >= 3 ? (chestClaimed ? 'concluido' : 'atual') : 'bloqueado',
+                    icone: null,
+                    resumo: 'Abra o baú e ganhe vidas extras e uma conquista especial.',
+                    href: '/fases/bau.html'
+                },
+                {
+                    id: 4,
+                    nome: 'Laboratório',
+                    status: 'desenvolvimento',
+                    icone: '🛠️',
+                    resumo: 'Conteúdo em desenvolvimento — em breve novas missões.',
+                    href: '/fases/fase4.html'
+                },
+                {
+                    id: 5,
+                    nome: 'Exploração Avançada',
+                    status: 'bloqueado',
+                    icone: '🧭',
+                    resumo: 'Missões avançadas. Desbloqueia conforme progresso.',
+                    href: '/fases/fase5.html'
+                }
+            ];
+
+            const concluidas = fasesDoJogo.filter((fase) => fase.status === 'concluido').length;
+            const atual = fasesDoJogo.find((fase) => fase.status === 'atual')?.id || currentPhase;
+            const bloqueadas = fasesDoJogo.filter((fase) => fase.status === 'bloqueado').length;
+
+            if (fasesConcluidasEl) fasesConcluidasEl.textContent = concluidas;
+            if (faseAtualEl) faseAtualEl.textContent = atual;
+            if (fasesBloqueadasEl) fasesBloqueadasEl.textContent = bloqueadas;
+
+            if (trilhaContainer) {
+                trilhaContainer.innerHTML = '';
+
+                fasesDoJogo.forEach((fase, index) => {
+                    const phaseButton = document.createElement('button');
+                    phaseButton.type = 'button';
+                    phaseButton.classList.add('fase-card', 'mission-stop', fase.status);
+                    phaseButton.style.setProperty('--offset', index % 2 === 0 ? '-44px' : '44px');
+                    phaseButton.setAttribute('aria-label', `${fase.nome}, ${fase.status === 'bloqueado' ? 'bloqueada' : 'disponível'}`);
+
+                    let badge = '';
+                    if (fase.status === 'concluido') badge = 'Concluída';
+                    else if (fase.status === 'atual') badge = 'Atual';
+                    else if (fase.status === 'desenvolvimento') badge = 'Em desenvolvimento';
+                    else badge = 'Bloqueada';
+
+                    let actionText = '';
+                    if (fase.status === 'desenvolvimento') actionText = 'Em desenvolvimento';
+                    else if (fase.status === 'bloqueado') actionText = 'Bloqueada';
+                    else if (fase.id === 3) actionText = 'Abrir baú';
+                    else actionText = 'Jogar agora';
+
+                    phaseButton.innerHTML = `
+                        <span class="mission-node" aria-hidden="true">
+                            <span class="mission-ring"></span>
+                            <span class="mission-number">${fase.id}</span>
+                        </span>
+                        <span class="mission-content">
+                            <span class="mission-kicker">${fase.id === 3 ? 'Recompensa final' : `Missão ${String(fase.id).padStart(2, '0')}`}</span>
+                            <span class="mission-title">${fase.nome}</span>
+                            <span class="mission-resume">${fase.resumo}</span>
+                        </span>
+                        <span class="mission-side">
+                            <span class="fase-icone" aria-hidden="true">${fase.id === 3 ? getChestSVG() : fase.icone}</span>
+                            <span class="fase-badge">${badge}</span>
+                            <span class="mission-action">${actionText}</span>
+                        </span>
+                    `;
+
+                    phaseButton.addEventListener('click', () => {
+                        if (fase.status === 'bloqueado') return;
+                        if (fase.status === 'desenvolvimento') {
+                            if (typeof showPopup === 'function') {
+                                showPopup('Em desenvolvimento', 'Esta fase está em desenvolvimento — em breve!');
+                            }
+                            return;
+                        }
+                        window.location.href = fase.href;
+                    });
+
+                    trilhaContainer.appendChild(phaseButton);
+                });
+            }
+        }
+
+        carregarMapa();
+    </script>
+    
+    <!-- Recarregar dados do ranking quando retorna de uma fase -->
+    <script src="../js/script.js"></script>
+    <script>
+        window.addEventListener('pageshow', () => {
+            console.log('Retornou ao mapa - Atualizando dados');
+            if (typeof loadRanking === 'function') {
+                loadRanking();
+            }
+            if (typeof loadRankingData === 'function') {
+                loadRankingData();
+            }
         });
     </script>
 

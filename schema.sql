@@ -9,6 +9,10 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   avatar VARCHAR(20) NOT NULL DEFAULT '🦊',
   profile_color VARCHAR(20) NOT NULL DEFAULT '#f5a623',
+  current_phase INT NOT NULL DEFAULT 0,
+  bonus_lives INT NOT NULL DEFAULT 0,
+  chest_claimed_at DATETIME NULL,
+  achievements TEXT NULL,
   failed_attempts INT NOT NULL DEFAULT 0,
   lock_until DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -44,7 +48,20 @@ CREATE TABLE IF NOT EXISTS streaks (
   current_streak INT NOT NULL DEFAULT 0,
   longest_streak INT NOT NULL DEFAULT 0,
   last_played_date DATE NULL,
+  last_played_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_streaks_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Registra minutos jogados por dia por usuário
+CREATE TABLE IF NOT EXISTS play_logs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  play_date DATE NOT NULL,
+  minutes_played INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_playlogs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_playlogs_user_date (user_id, play_date)
 );

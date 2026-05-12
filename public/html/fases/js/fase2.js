@@ -1,94 +1,92 @@
 const questions = [
   {
-    prompt: 'No quarto, eu vou _____ a cama.',
+    prompt: 'Na cozinha, eu vou _____ a mesa para o jantar.',
     options: [
       { key: '', text: 'arrumar', correct: true },
       { key: '', text: 'arrumou', correct: false },
       { key: '', text: 'arrumando', correct: false },
-      { key: '', text: 'arrumarem', correct: false },
+      { key: '', text: 'arrumem', correct: false },
     ],
-    feedback: 'Correto. No quarto, arrumar a cama faz sentido na frase.',
+    feedback: 'Correto. Depois de "vou", usamos o verbo no infinitivo: arrumar.',
   },
   {
-    prompt: 'No quarto, ela costuma _____ o pijama no armário.',
+    prompt: 'Na cozinha, ela costuma _____ os pratos após o almoço.',
     options: [
-      { key: '', text: 'guardar', correct: true },
-      { key: '', text: 'guardou', correct: false },
-      { key: '', text: 'guardando', correct: false },
-      { key: '', text: 'guardei', correct: false },
+      { key: '', text: 'lavar', correct: true },
+      { key: '', text: 'lavou', correct: false },
+      { key: '', text: 'lavando', correct: false },
+      { key: '', text: 'lavei', correct: false },
     ],
-    feedback: 'Correto. "Guardar" encaixa bem na ação do quarto.',
+    feedback: 'Correto. "Lavar" combina com a ação da cozinha.',
   },
   {
-    prompt: 'Ontem, nós _____ os livros na estante do quarto.',
+    prompt: 'Ontem, nós _____ o bolo no forno.',
     options: [
       { key: '', text: 'colocamos', correct: true },
-      { key: '', text: 'colocamosse', correct: false },
-      { key: '', text: 'colocar', correct: false },
       { key: '', text: 'colocando', correct: false },
+      { key: '', text: 'colocar', correct: false },
+      { key: '', text: 'colocamosse', correct: false },
     ],
-    feedback: 'Correto. O passado da ação no quarto fica natural com "colocamos".',
+    feedback: 'Correto. No passado, a forma certa é colocamos.',
   },
   {
-    prompt: 'Você vai _____ a janela do quarto agora?',
+    prompt: 'Você vai _____ o suco na jarra agora?',
     options: [
-      { key: '', text: 'fechar', correct: true },
-      { key: '', text: 'fechou', correct: false },
-      { key: '', text: 'fechando', correct: false },
+      { key: '', text: 'servir', correct: true },
+      { key: '', text: 'serviu', correct: false },
+      { key: '', text: 'servido', correct: false },
+      { key: '', text: 'servindo', correct: false },
+    ],
+    feedback: 'Correto. Depois de "vai", usamos o infinitivo: servir.',
+  },
+  {
+    prompt: 'Eles _____ a panela com cuidado.',
+    options: [
+      { key: '', text: 'mexeram', correct: true },
+      { key: '', text: 'mexem', correct: false },
+      { key: '', text: 'mexer', correct: false },
+      { key: '', text: 'mexendo', correct: false },
+    ],
+    feedback: 'Correto. A frase pede passado: mexeram.',
+  },
+  {
+    prompt: 'Ela está _____ a sopa na tigela.',
+    options: [
+      { key: '', text: 'colocando', correct: true },
+      { key: '', text: 'colocou', correct: false },
+      { key: '', text: 'coloca', correct: false },
+      { key: '', text: 'colocar', correct: false },
+    ],
+    feedback: 'Correto. Com "está", a forma contínua fica natural: colocando.',
+  },
+  {
+    prompt: 'Nós sempre _____ a fruta antes de comer.',
+    options: [
+      { key: '', text: 'lavamos', correct: true },
+      { key: '', text: 'lava', correct: false },
+      { key: '', text: 'lavar', correct: false },
+      { key: '', text: 'lavando', correct: false },
+    ],
+    feedback: 'Correto. O presente habitual usa lavamos.',
+  },
+  {
+    prompt: 'Você _____ a geladeira antes de sair?',
+    options: [
+      { key: '', text: 'fechou', correct: true },
       { key: '', text: 'fecha', correct: false },
+      { key: '', text: 'fechar', correct: false },
+      { key: '', text: 'fechando', correct: false },
     ],
-    feedback: 'Correto. Depois de "vai", usamos o verbo no infinitivo: fechar.',
-  },
-  {
-    prompt: 'Eles _____ a luminária ao lado da cama.',
-    options: [
-      { key: '', text: 'ligaram', correct: true },
-      { key: '', text: 'ligam', correct: false },
-      { key: '', text: 'ligar', correct: false },
-      { key: '', text: 'ligando', correct: false },
-    ],
-    feedback: 'Correto. A frase pede passado: ligaram.',
-  },
-  {
-    prompt: 'Ela está _____ a roupa no cabide do quarto.',
-    options: [
-      { key: '', text: 'pendurando', correct: true },
-      { key: '', text: 'pendurou', correct: false },
-      { key: '', text: 'pendura', correct: false },
-      { key: '', text: 'pendurar', correct: false },
-    ],
-    feedback: 'Correto. Com "está", a forma contínua fica bem natural: pendurando.',
-  },
-  {
-    prompt: 'Nós sempre _____ o travesseiro antes de dormir.',
-    options: [
-      { key: '', text: 'ajustamos', correct: true },
-      { key: '', text: 'ajusta', correct: false },
-      { key: '', text: 'ajustar', correct: false },
-      { key: '', text: 'ajustando', correct: false },
-    ],
-    feedback: 'Correto. O presente habitual usa "ajustamos".',
-  },
-  {
-    prompt: 'Você _____ o despertador antes de sair do quarto.',
-    options: [
-      { key: '', text: 'desligou', correct: true },
-      { key: '', text: 'desliga', correct: false },
-      { key: '', text: 'desligar', correct: false },
-      { key: '', text: 'desligando', correct: false },
-    ],
-    feedback: 'Correto. A ação já aconteceu, então usamos "desligou".',
+    feedback: 'Correto. A ação já aconteceu, então usamos fechou.',
   },
 ];
 
 function shuffleArray(items) {
   const array = [...items];
-
   for (let index = array.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
     [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
   }
-
   return array;
 }
 
@@ -117,7 +115,6 @@ let erros = 0;
 let currentQuestionIndex = 0;
 let locked = false;
 const completionBonus = 50;
-let sessionStart = Date.now();
 
 function renderQuestion() {
   const question = shuffledQuestions[currentQuestionIndex];
@@ -127,12 +124,10 @@ function renderQuestion() {
   }
 
   if (kickerEl) {
-    kickerEl.textContent = `Quarto ${currentQuestionIndex + 1} de ${shuffledQuestions.length}`;
+    kickerEl.textContent = `Cozinha ${currentQuestionIndex + 1} de ${shuffledQuestions.length}`;
   }
 
-  if (!optionsEl) {
-    return;
-  }
+  if (!optionsEl) return;
 
   optionsEl.innerHTML = '';
   if (feedbackEl) {
@@ -156,9 +151,7 @@ function renderQuestion() {
 }
 
 function handleAnswer(option, button) {
-  if (locked) {
-    return;
-  }
+  if (locked) return;
 
   locked = true;
   const buttons = Array.from(optionsEl.querySelectorAll('.answer-option'));
@@ -172,9 +165,7 @@ function handleAnswer(option, button) {
   if (option.correct) {
     pontos += 10;
     verbosAprendidos += 1;
-    if (pontosEl) {
-      pontosEl.textContent = pontos;
-    }
+    if (pontosEl) pontosEl.textContent = pontos;
     button.classList.add('correct');
     if (feedbackEl) {
       feedbackEl.textContent = question.feedback;
@@ -186,7 +177,6 @@ function handleAnswer(option, button) {
         await vencer();
         return;
       }
-
       renderQuestion();
     }, 900);
     return;
@@ -196,12 +186,8 @@ function handleAnswer(option, button) {
   erros += 1;
   pontos = Math.max(0, pontos - 1);
   verbosAprendidos = Math.max(0, verbosAprendidos - 1);
-  if (pontosEl) {
-    pontosEl.textContent = pontos;
-  }
-  if (vidasEl) {
-    vidasEl.textContent = vidas;
-  }
+  if (pontosEl) pontosEl.textContent = pontos;
+  if (vidasEl) vidasEl.textContent = vidas;
   button.classList.add('wrong');
   if (feedbackEl) {
     feedbackEl.textContent = 'Tente outra forma. Essa alternativa não completa a frase corretamente.';
@@ -225,81 +211,57 @@ async function vencer() {
   const estrelas = vidas === 3 ? 3 : vidas === 2 ? 2 : 1;
   const totalPoints = pontos + completionBonus;
   pontos = totalPoints;
-  if (pontosEl) {
-    pontosEl.textContent = pontos;
-  }
-  
-  // Calcular pontos finais considerando repetições
+  if (pontosEl) pontosEl.textContent = pontos;
+
   let finalPoints = totalPoints;
   const token = localStorage.getItem('cacaVerbosToken');
-  
+
   if (token) {
     try {
-      const checkResponse = await fetch('/api/score/1', {
+      const checkResponse = await fetch('/api/score/2', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
       const checkData = await checkResponse.json();
       if (checkData.completed) {
         finalPoints = Math.floor(totalPoints * 0.5);
       }
     } catch (error) {
-      console.error('[VENCER] Erro ao verificar score:', error);
+      console.error('[VENCER 2] Erro ao verificar score:', error);
     }
   }
-  
-  // Mostrar apenas os pontos ganhos, sem avisos
+
   document.getElementById('pontuacaoFinal').textContent = `Você ganhou ${finalPoints} pontos`;
-  if (verbsFinalEl) {
-    verbsFinalEl.textContent = `Verbos concluídos: ${verbosAprendidos}`;
-  }
+  if (verbsFinalEl) verbsFinalEl.textContent = `Verbos concluídos: ${verbosAprendidos}`;
   document.getElementById('estrelas').textContent = '⭐'.repeat(estrelas);
-  if (nextButton) {
-    nextButton.disabled = false;
-  }
-  
-  // Salvar pontuação
+  if (nextButton) nextButton.disabled = false;
+
   if (typeof saveScore === 'function') {
     try {
-      const result = await saveScore(1, totalPoints, verbosAprendidos);
-      console.log('Score salvo com sucesso:', result);
+      const result = await saveScore(2, totalPoints, verbosAprendidos);
+      console.log('Score fase 2 salvo com sucesso:', result);
       if (typeof advanceUserProgress === 'function') {
-        await advanceUserProgress(1);
+        await advanceUserProgress(2);
       }
-      const minutesPlayed = Math.max(1, Math.round((Date.now() - sessionStart) / 60000));
-      if (typeof updateUserStreak === 'function') {
-        await updateUserStreak({ flawless: erros === 0, minutes_played: minutesPlayed });
+      if (erros === 0 && typeof updateUserStreak === 'function') {
+        await updateUserStreak({ flawless: true });
       }
     } catch (error) {
-      console.error('Erro ao salvar score da fase:', error);
+      console.error('Erro ao salvar score da fase 2:', error);
     }
   }
-  
+
   winScreen.classList.remove('hidden');
 }
 
 function perder() {
   const loseTitle = loseScreen.querySelector('h1');
   const loseText = loseScreen.querySelector('p');
-  if (loseTitle) {
-    loseTitle.textContent = '💤 Você errou a rotina do quarto!';
-  }
-  if (loseText) {
-    loseText.textContent = 'Tente de novo para organizar o quarto e completar a missão.';
-  }
+  if (loseTitle) loseTitle.textContent = '💤 Você errou a missão da cozinha!';
+  if (loseText) loseText.textContent = 'Tente de novo para organizar a cozinha e completar a missão.';
   loseScreen.classList.remove('hidden');
-  // Registrar tempo jogado mesmo em derrota
-  try {
-    const minutesPlayed = Math.max(1, Math.round((Date.now() - sessionStart) / 60000));
-    if (typeof updateUserStreak === 'function') {
-      updateUserStreak({ flawless: false, minutes_played: minutesPlayed }).catch(()=>{});
-    }
-  } catch (e) {
-    console.error('Erro ao registrar minutesPlayed na derrota:', e);
-  }
 }
 
 function ganharVidas() {
@@ -309,9 +271,7 @@ function ganharVidas() {
 
   setTimeout(() => {
     vidas = 3;
-    if (vidasEl) {
-      vidasEl.textContent = vidas;
-    }
+    if (vidasEl) vidasEl.textContent = vidas;
     locked = false;
     loseScreen.classList.add('hidden');
     if (typeof showPopup === 'function') {
@@ -332,13 +292,10 @@ async function initializeGame() {
   try {
     const progress = typeof getUserProgress === 'function' ? await getUserProgress() : { bonus_lives: 0 };
     vidas = 3 + Number(progress.bonus_lives || 0);
-    if (vidasEl) {
-      vidasEl.textContent = vidas;
-    }
+    if (vidasEl) vidasEl.textContent = vidas;
   } catch (error) {
-    console.error('Erro ao carregar progresso inicial:', error);
+    console.error('Erro ao carregar progresso inicial da fase 2:', error);
   }
-  sessionStart = Date.now();
 
   renderQuestion();
 }

@@ -1,13 +1,17 @@
 
-const path = require('path');
-const crypto = require('crypto');
-const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+import path from 'path';
+import crypto from 'crypto';
+import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mysql from 'mysql2/promise';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { fileURLToPath } from 'url';
+import 'dotenv/config';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -77,12 +81,17 @@ app.get('/api/health', async (_req, res) => {
 
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const name = sanitizeName(req.body.name);
+    let name = sanitizeName(req.body.name);
     const email = normalizeEmail(req.body.email);
     const birthDate = req.body.birthDate ? String(req.body.birthDate) : null;
     const password = String(req.body.password || '');
     const avatar = String(req.body.avatar || '🦊').slice(0, 20);
     const profileColor = String(req.body.profileColor || '#f5a623').slice(0, 20);
+
+    // Se não houver nome, usar um nome padrão
+    if (!name || name.length === 0) {
+      name = 'Jogador';
+    }
 
     if (name.length < 2 || name.length > 100) {
       return res.status(400).json({ message: 'Nome invalido.' });
@@ -108,8 +117,8 @@ app.post('/api/auth/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
 
     await dbPool.execute(
-      `INSERT INTO users (name, email, birth_date, password_hash, avatar, profile_color)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (name, email, birth_date, password_hash, avatar, profile_color, current_phase)
+       VALUES (?, ?, ?, ?, ?, ?, 0)`,
       [name, email, birthDate, passwordHash, avatar, profileColor]
     );
 
@@ -185,6 +194,181 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Atualizar perfil do usuário (nome, avatar, cor)
+app.put('/api/auth/update-profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { name, avatar, profileColor } = req.body;
+
+    // Validar dados
+    const updates = {};
+    if (name !== undefined && typeof name === 'string' && name.trim().length > 0) {
+      updates.name = name.trim();
+    }
+    if (avatar !== undefined && typeof avatar === 'string' && avatar.length > 0) {
+      updates.avatar = avatar;
+    }
+    if (profileColor !== undefined && typeof profileColor === 'string' && profileColor.length > 0) {
+      updates.profileColor = profileColor;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: 'Nenhum campo para atualizar.' });
+    }
+
+    // Montar query dinâmica
+    const setClause = [];
+    const values = [];
+    
+    if (updates.name) {
+      setClause.push('name = ?');
+      values.push(updates.name);
+    }
+    if (updates.avatar) {
+      setClause.push('avatar = ?');
+      values.push(updates.avatar);
+    }
+    if (updates.profileColor) {
+      setClause.push('profile_color = ?');
+      values.push(updates.profileColor);
+    }
+
+    values.push(userId);
+
+    await dbPool.execute(
+      `UPDATE users SET ${setClause.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    return res.json({ message: 'Perfil atualizado com sucesso.', user: updates });
+  } catch (error) {
+    console.error('update profile error', error);
+    return res.status(500).json({ message: 'Erro ao atualizar perfil.' });
+  }
+});
+
+// Obter progresso de fases do usuário
+app.get('/api/progression', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const [rows] = await dbPool.execute(
+      'SELECT current_phase, bonus_lives, chest_claimed_at, achievements FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+
+    const user = Array.isArray(rows) ? rows[0] : null;
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    const achievements = user.achievements ? String(user.achievements).split('|').filter(Boolean) : [];
+
+    return res.json({
+      current_phase: Number(user.current_phase ?? 1),
+      bonus_lives: Number(user.bonus_lives ?? 0),
+      chest_claimed: Boolean(user.chest_claimed_at),
+      achievements,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar progresso:', error);
+    return res.status(500).json({ message: 'Erro ao buscar progresso.' });
+  }
+});
+
+// Avança o desbloqueio de fase após concluir uma missão
+app.post('/api/progression/complete', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const completedLevel = Number(req.body?.completedLevel);
+
+    if (!Number.isInteger(completedLevel) || completedLevel < 1) {
+      return res.status(400).json({ message: 'Level inválido.' });
+    }
+
+    const [rows] = await dbPool.execute(
+      'SELECT current_phase, bonus_lives, chest_claimed_at, achievements FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+
+    const user = Array.isArray(rows) ? rows[0] : null;
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    const currentPhase = Number(user.current_phase || 1);
+    const nextPhase = completedLevel === 1 ? 2 : completedLevel === 2 ? 3 : currentPhase;
+    const updatedPhase = Math.max(currentPhase, nextPhase);
+
+    await dbPool.execute(
+      'UPDATE users SET current_phase = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [updatedPhase, userId]
+    );
+
+    return res.json({
+      current_phase: updatedPhase,
+      bonus_lives: Number(user.bonus_lives || 0),
+      chest_claimed: Boolean(user.chest_claimed_at),
+      achievements: user.achievements ? String(user.achievements).split('|').filter(Boolean) : [],
+    });
+  } catch (error) {
+    console.error('Erro ao avançar progresso:', error);
+    return res.status(500).json({ message: 'Erro ao avançar progresso.' });
+  }
+});
+
+// Abrir o baú da fase 3
+app.post('/api/progression/chest/open', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const [rows] = await dbPool.execute(
+      'SELECT current_phase, bonus_lives, chest_claimed_at, achievements FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+
+    const user = Array.isArray(rows) ? rows[0] : null;
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (Number(user.current_phase || 1) < 3) {
+      return res.status(403).json({ message: 'Baú ainda bloqueado.' });
+    }
+
+    if (user.chest_claimed_at) {
+      return res.json({
+        opened: false,
+        bonus_lives: Number(user.bonus_lives || 0),
+        achievements: user.achievements ? String(user.achievements).split('|').filter(Boolean) : [],
+      });
+    }
+
+    const currentBonusLives = Number(user.bonus_lives || 0);
+    const newBonusLives = currentBonusLives + 3;
+    const achievements = user.achievements ? String(user.achievements).split('|').filter(Boolean) : [];
+    if (!achievements.includes('Caçador Iniciante')) {
+      achievements.push('Caçador Iniciante');
+    }
+
+    await dbPool.execute(
+      'UPDATE users SET bonus_lives = ?, chest_claimed_at = CURRENT_TIMESTAMP, achievements = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [newBonusLives, achievements.join('|'), userId]
+    );
+
+    return res.json({
+      opened: true,
+      bonus_lives: newBonusLives,
+      reward: {
+        bonus_lives: 3,
+        achievement: 'Caçador Iniciante',
+      },
+      achievements,
+    });
+  } catch (error) {
+    console.error('Erro ao abrir baú:', error);
+    return res.status(500).json({ message: 'Erro ao abrir baú.' });
+  }
+});
+
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
@@ -226,16 +410,28 @@ app.get('/api/ranking', async (req, res) => {
   try {
     // Ranking por soma total de pontos em todos os níveis
     const [rows] = await dbPool.execute(`
-      SELECT u.id, u.name, u.avatar, SUM(s.points) as total_points, MAX(s.level) as max_level, SUM(COALESCE(s.verbs_completed, 0)) as total_verbs
+      SELECT 
+        u.id, 
+        u.name, 
+        u.avatar, 
+        COALESCE(SUM(s.points), 0) as total_points, 
+        COALESCE(MAX(s.level), 0) as max_level, 
+        COALESCE(SUM(COALESCE(s.verbs_completed, 0)), 0) as total_verbs
       FROM users u
-      JOIN scores s ON u.id = s.user_id
+      LEFT JOIN scores s ON u.id = s.user_id
       GROUP BY u.id, u.name, u.avatar
-      ORDER BY total_points DESC, total_verbs DESC, max_level DESC, u.name ASC
+      HAVING SUM(s.points) > 0 OR SUM(s.points) IS NULL
+      ORDER BY COALESCE(SUM(s.points), 0) DESC, COALESCE(SUM(COALESCE(s.verbs_completed, 0)), 0) DESC, COALESCE(MAX(s.level), 0) DESC, u.name ASC
       LIMIT 50
     `);
+    
+    console.log(`[RANKING] ✅ Retornando ${rows.length} registros do ranking`);
+    rows.forEach((row, idx) => {
+      console.log(`  ${idx + 1}. ${row.avatar} ${row.name}: ${row.total_points} pontos (Level ${row.max_level})`);
+    });
     res.json({ ranking: rows });
   } catch (error) {
-    console.error('Erro ao buscar ranking:', error);
+    console.error('[RANKING] Erro ao buscar ranking:', error);
     res.status(500).json({ message: 'Erro ao buscar ranking.' });
   }
 });
@@ -245,14 +441,35 @@ app.get('/api/streak', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.sub;
     const [rows] = await dbPool.execute(
-      'SELECT current_streak, longest_streak, last_played_date FROM streaks WHERE user_id = ? LIMIT 1',
+      'SELECT current_streak, longest_streak, last_played_date, last_played_at FROM streaks WHERE user_id = ? LIMIT 1',
       [userId]
     );
-    if (Array.isArray(rows) && rows.length > 0) {
-      res.json(rows[0]);
-    } else {
-      res.json({ current_streak: 0, longest_streak: 0, last_played_date: null });
+
+    // Buscar últimos 7 dias de play_logs (se a tabela existir)
+    let logs = [];
+    try {
+      const [logsRows] = await dbPool.execute(
+        `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+        [userId]
+      );
+      logs = Array.isArray(logsRows) ? logsRows : [];
+    } catch (err) {
+      if (err && err.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('[STREAK] play_logs table missing; skipping play log fetch');
+        logs = [];
+      } else {
+        throw err;
+      }
     }
+
+    const streakRow = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    res.json({
+      current_streak: streakRow ? (streakRow.current_streak || 0) : 0,
+      longest_streak: streakRow ? (streakRow.longest_streak || 0) : 0,
+      last_played_date: streakRow ? streakRow.last_played_date : null,
+      last_played_at: streakRow ? streakRow.last_played_at : null,
+      play_logs: logs
+    });
   } catch (error) {
     console.error('Erro ao buscar streak:', error);
     res.status(500).json({ message: 'Erro ao buscar streak.' });
@@ -263,44 +480,109 @@ app.get('/api/streak', authenticateToken, async (req, res) => {
 app.post('/api/streak', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.sub;
-    const today = new Date().toISOString().split('T')[0];
-    
+    const flawless = req.body?.flawless === true;
+    const minutesPlayedRaw = req.body?.minutes_played;
+    const minutesPlayed = Number.isFinite(Number(minutesPlayedRaw)) ? Math.max(0, Math.round(Number(minutesPlayedRaw))) : 0;
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+
+    // Sempre registrar minutos jogados (se fornecidos)
+    if (minutesPlayed > 0) {
+      try {
+        // verificar se já existe log para hoje
+        const [existingLog] = await dbPool.execute('SELECT id, minutes_played FROM play_logs WHERE user_id = ? AND play_date = ? LIMIT 1', [userId, today]);
+        if (Array.isArray(existingLog) && existingLog.length > 0) {
+          const log = existingLog[0];
+          const newMinutes = (log.minutes_played || 0) + minutesPlayed;
+          await dbPool.execute('UPDATE play_logs SET minutes_played = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [newMinutes, log.id]);
+        } else {
+          await dbPool.execute('INSERT INTO play_logs (user_id, play_date, minutes_played) VALUES (?, ?, ?)', [userId, today, minutesPlayed]);
+        }
+      } catch (err) {
+        if (err && err.code === 'ER_NO_SUCH_TABLE') {
+          console.warn('[STREAK] play_logs table missing; skipping play log insert/update');
+        } else {
+          throw err;
+        }
+      }
+    }
+
     // Verifica se usuário já tem streak registrado
     const [existing] = await dbPool.execute(
-      'SELECT current_streak, longest_streak, last_played_date FROM streaks WHERE user_id = ? LIMIT 1',
+      'SELECT current_streak, longest_streak, last_played_date, last_played_at FROM streaks WHERE user_id = ? LIMIT 1',
       [userId]
     );
     
     if (Array.isArray(existing) && existing.length > 0) {
       const streak = existing[0];
-      const lastDate = streak.last_played_date ? new Date(streak.last_played_date).toISOString().split('T')[0] : null;
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
-      let newStreak = streak.current_streak;
-      if (lastDate !== today) {
-        if (lastDate === yesterday) {
-          newStreak = streak.current_streak + 1;
+      const lastPlayedDate = streak.last_played_date || (streak.last_played_at ? new Date(streak.last_played_at).toISOString().split('T')[0] : null);
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayDate = yesterday.toISOString().split('T')[0];
+
+      let newStreak = streak.current_streak || 0;
+      if (flawless) {
+        if (lastPlayedDate === today) {
+          newStreak = streak.current_streak || 1;
+        } else if (lastPlayedDate === yesterdayDate) {
+          newStreak = (streak.current_streak || 0) + 1;
         } else {
           newStreak = 1;
         }
+      } else {
+        // Não alterar streak quando não for flawless
+        newStreak = streak.current_streak || 0;
       }
       
       const newLongestStreak = Math.max(newStreak, streak.longest_streak);
       
       await dbPool.execute(
-        'UPDATE streaks SET current_streak = ?, longest_streak = ?, last_played_date = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
-        [newStreak, newLongestStreak, today, userId]
+        'UPDATE streaks SET current_streak = ?, longest_streak = ?, last_played_date = ?, last_played_at = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
+        [newStreak, newLongestStreak, today, now, userId]
       );
-      
-      res.json({ current_streak: newStreak, longest_streak: newLongestStreak, last_played_date: today });
+
+      // Retornar também os logs atualizados dos últimos 7 dias
+      let logs = [];
+      try {
+        const [logsRows] = await dbPool.execute(
+          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+          [userId]
+        );
+        logs = Array.isArray(logsRows) ? logsRows : [];
+      } catch (err) {
+        if (err && err.code === 'ER_NO_SUCH_TABLE') {
+          console.warn('[STREAK] play_logs table missing; skipping play log fetch');
+          logs = [];
+        } else {
+          throw err;
+        }
+      }
+
+      res.json({ current_streak: newStreak, longest_streak: newLongestStreak, last_played_date: today, last_played_at: now, updated: lastPlayedDate !== today, play_logs: logs });
     } else {
       // Cria novo registro de streak
       await dbPool.execute(
-        'INSERT INTO streaks (user_id, current_streak, longest_streak, last_played_date) VALUES (?, 1, 1, ?)',
-        [userId, today]
+        'INSERT INTO streaks (user_id, current_streak, longest_streak, last_played_date, last_played_at) VALUES (?, 1, 1, ?, ?)',
+        [userId, today, now]
       );
-      
-      res.json({ current_streak: 1, longest_streak: 1, last_played_date: today });
+
+      let logs = [];
+      try {
+        const [logsRows] = await dbPool.execute(
+          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+          [userId]
+        );
+        logs = Array.isArray(logsRows) ? logsRows : [];
+      } catch (err) {
+        if (err && err.code === 'ER_NO_SUCH_TABLE') {
+          console.warn('[STREAK] play_logs table missing; skipping play log fetch');
+          logs = [];
+        } else {
+          throw err;
+        }
+      }
+
+      res.json({ current_streak: 1, longest_streak: 1, last_played_date: today, last_played_at: now, updated: true, play_logs: logs });
     }
   } catch (error) {
     console.error('Erro ao atualizar streak:', error);
@@ -328,6 +610,34 @@ app.get('/api/user/level', authenticateToken, async (req, res) => {
   }
 });
 
+// Verificar se nível já foi completado
+app.get('/api/score/:level', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const level = Number(req.params.level);
+    
+    if (!Number.isInteger(level) || level < 1) {
+      return res.status(400).json({ message: 'Level inválido.' });
+    }
+    
+    const [rows] = await dbPool.execute(
+      'SELECT points, verbs_completed FROM scores WHERE user_id = ? AND level = ? LIMIT 1',
+      [userId, level]
+    );
+    
+    if (Array.isArray(rows) && rows.length > 0) {
+      console.log(`[SCORE CHECK] Nível ${level} já completado - Points: ${rows[0].points}`);
+      res.json({ completed: true, previousPoints: rows[0].points, previousVerbsCompleted: rows[0].verbs_completed });
+    } else {
+      console.log(`[SCORE CHECK] Nível ${level} é primeira tentativa`);
+      res.json({ completed: false });
+    }
+  } catch (error) {
+    console.error('[SCORE CHECK] Erro ao verificar score:', error);
+    res.status(500).json({ message: 'Erro ao verificar score.' });
+  }
+});
+
 // Middleware para autenticação JWT
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -345,32 +655,76 @@ app.post('/api/score', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.sub;
     const { level, points, verbsCompleted = 0 } = req.body;
+    
+    console.log(`[SCORE] Recebido: userId=${userId}, level=${level}, points=${points}, verbsCompleted=${verbsCompleted}`);
+    
     if (!Number.isInteger(level) || !Number.isInteger(points)) {
-      return res.status(400).json({ message: 'Dados inválidos.' });
+      console.error('[SCORE] Dados inválidos:', { level, points });
+      return res.status(400).json({ message: 'Dados inválidos. Level e points devem ser números inteiros.' });
     }
+    
     const safeVerbsCompleted = Number.isInteger(verbsCompleted) && verbsCompleted >= 0 ? verbsCompleted : 0;
+    
     // Verifica se já existe score para esse user e level
-    const [existing] = await dbPool.execute(
-      'SELECT id FROM scores WHERE user_id = ? AND level = ? LIMIT 1',
-      [userId, level]
-    );
-    if (Array.isArray(existing) && existing.length > 0) {
-      // Atualiza se já existe
-      await dbPool.execute(
-        'UPDATE scores SET points = ?, verbs_completed = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND level = ?',
-        [points, safeVerbsCompleted, userId, level]
+    let existing;
+    try {
+      [existing] = await dbPool.execute(
+        'SELECT id, points as previousPoints FROM scores WHERE user_id = ? AND level = ? LIMIT 1',
+        [userId, level]
       );
+    } catch (queryError) {
+      console.error('[SCORE] Falha ao consultar score existente:', queryError);
+      return res.status(500).json({ message: `Erro ao consultar score existente: ${queryError.message}` });
+    }
+    
+    let finalPoints = points;
+    let isReplay = false;
+    
+    if (Array.isArray(existing) && existing.length > 0) {
+      // É uma repetição - reduz para 50% dos pontos
+      isReplay = true;
+      finalPoints = Math.floor(points * 0.5);
+      console.log(`[SCORE] 🔄 REPETIÇÃO DETECTADA! Reduzindo de ${points} para ${finalPoints} pontos`);
+      
+      // Acumula os pontos da mesma missão ao total já salvo
+      const accumulatedPoints = existing[0].previousPoints + finalPoints;
+      console.log(`[SCORE] Atualizando score. Pontos anteriores: ${existing[0].previousPoints}, Novos: ${finalPoints}, Total acumulado: ${accumulatedPoints}`);
+      try {
+        await dbPool.execute(
+          'UPDATE scores SET points = ?, verbs_completed = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND level = ?',
+          [accumulatedPoints, safeVerbsCompleted, userId, level]
+        );
+      } catch (updateError) {
+        console.error('[SCORE] Falha ao atualizar score:', updateError);
+        return res.status(500).json({ message: `Erro ao atualizar score: ${updateError.message}` });
+      }
     } else {
       // Insere novo score
-      await dbPool.execute(
-        'INSERT INTO scores (user_id, points, level, verbs_completed) VALUES (?, ?, ?, ?)',
-        [userId, points, level, safeVerbsCompleted]
-      );
+      console.log(`[SCORE] ✅ Primeira vez no nível ${level}`);
+      try {
+        await dbPool.execute(
+          'INSERT INTO scores (user_id, points, level, verbs_completed) VALUES (?, ?, ?, ?)',
+          [userId, finalPoints, level, safeVerbsCompleted]
+        );
+      } catch (insertError) {
+        console.error('[SCORE] Falha ao inserir score:', insertError);
+        return res.status(500).json({ message: `Erro ao inserir score: ${insertError.message}` });
+      }
     }
-    return res.json({ message: 'Pontuação salva com sucesso.' });
+    
+    console.log(`[SCORE] ✅ Sucesso ao salvar score para userId=${userId}, level=${level}`);
+    return res.json({ 
+      message: 'Pontuação salva com sucesso.',
+      isReplay,
+      pointsEarned: finalPoints,
+      pointsReduction: isReplay ? Math.floor(points * 0.5) : 0,
+      totalPoints: isReplay && Array.isArray(existing) && existing.length > 0
+        ? existing[0].previousPoints + finalPoints
+        : finalPoints
+    });
   } catch (error) {
-    console.error('Erro ao salvar pontuação:', error);
-    return res.status(500).json({ message: 'Erro ao salvar pontuação.' });
+    console.error('[SCORE] ❌ Erro ao salvar pontuação:', error);
+    return res.status(500).json({ message: 'Erro ao salvar pontuação. Tente novamente.' });
   }
 });
 
@@ -436,6 +790,14 @@ app.get('/tela-fases.html', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'tela-fases.html'));
 });
 
+app.get('/verb.html', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'verb.html'));
+});
+
+app.get('/html/verb.html', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'verb.html'));
+});
+
 // Serve phase pages
 app.get('/fases/fase*.html', (req, res) => {
   const filename = req.path.split('/').pop();
@@ -466,7 +828,46 @@ async function ensureScoresVerbsColumn() {
   }
 }
 
-ensureScoresVerbsColumn().finally(() => {
+async function ensureStreakColumns() {
+  try {
+    const [rows] = await dbPool.execute(
+      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'streaks' AND COLUMN_NAME = 'last_played_at' LIMIT 1"
+    );
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      await dbPool.execute('ALTER TABLE streaks ADD COLUMN last_played_at DATETIME NULL AFTER longest_streak');
+      await dbPool.execute('UPDATE streaks SET last_played_at = CAST(CONCAT(last_played_date, " 00:00:00") AS DATETIME) WHERE last_played_at IS NULL AND last_played_date IS NOT NULL');
+    }
+  } catch (error) {
+    console.error('Erro ao garantir coluna last_played_at:', error);
+  }
+}
+
+async function ensureUserProgressColumns() {
+  try {
+    const checks = [
+      { name: 'current_phase', ddl: 'ALTER TABLE users ADD COLUMN current_phase INT NOT NULL DEFAULT 1 AFTER updated_at' },
+      { name: 'bonus_lives', ddl: 'ALTER TABLE users ADD COLUMN bonus_lives INT NOT NULL DEFAULT 0 AFTER current_phase' },
+      { name: 'chest_claimed_at', ddl: 'ALTER TABLE users ADD COLUMN chest_claimed_at DATETIME NULL AFTER bonus_lives' },
+      { name: 'achievements', ddl: 'ALTER TABLE users ADD COLUMN achievements TEXT NULL AFTER chest_claimed_at' },
+    ];
+
+    for (const column of checks) {
+      const [rows] = await dbPool.execute(
+        'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "users" AND COLUMN_NAME = ? LIMIT 1',
+        [column.name]
+      );
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        await dbPool.execute(column.ddl);
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao garantir colunas de progresso do usuário:', error);
+  }
+}
+
+Promise.all([ensureScoresVerbsColumn(), ensureStreakColumns(), ensureUserProgressColumns()]).finally(() => {
   app.listen(PORT, () => {
     console.log(`Servidor iniciado em http://localhost:${PORT}`);
   });
