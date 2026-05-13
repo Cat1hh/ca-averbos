@@ -21,13 +21,19 @@ Crie as variáveis no dashboard do Vercel (ou com `vercel env add`) com valores 
 
 Observações importantes
 
-- Este projeto usa uma função serverless Express (`api/[...all].js`) e `serverless-http`.
-- Garanta que seu banco MySQL aceite conexões do ambiente Vercel (use um serviço cloud como PlanetScale, ClearDB ou um host com IPs acessíveis).
+- O site e a API são servidos pelo Express em `server.js`, com a função Vercel em `api/[...all].js` apontando para o mesmo app.
+- Garanta que seu banco MySQL aceite conexões do ambiente Vercel. O Vercel não hospeda MySQL diretamente, então você precisa usar um serviço externo.
 - Para testes locais instale o Vercel CLI:
 
 ```bash
 npm i -g vercel
 vercel dev
 ```
+
+Checklist rápido no Vercel
+
+1. Conecte o repositório `ca-averbos` ao projeto.
+2. Defina `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` e `JWT_SECRET` em Environment Variables.
+3. Faça o deploy e teste a rota `/api/health`.
 
 Se quiser, posso criar scripts adicionais, configurar CI ou testar `vercel dev` localmente para você.
