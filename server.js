@@ -868,7 +868,11 @@ async function ensureUserProgressColumns() {
 }
 
 Promise.all([ensureScoresVerbsColumn(), ensureStreakColumns(), ensureUserProgressColumns()]).finally(() => {
-  app.listen(PORT, () => {
-    console.log(`Servidor iniciado em http://localhost:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log(`Servidor iniciado em http://localhost:${PORT}`);
+    });
+  }
 });
+
+export default app;
