@@ -1443,6 +1443,34 @@ body {
   }
 }
 
+/* Refine menu layout for small and extra-small screens */
+@media (max-width: 900px) {
+  .module-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .module-card { grid-column: auto; min-height: 150px; padding: 14px; border-radius: 18px; }
+  .module-icon { width: 48px; height: 48px; border-radius: 14px; font-size: 1.4rem; }
+  .module-title { font-size: 1.05rem; }
+  .module-text { font-size: 0.92rem; }
+  .section-heading h2 { font-size: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .module-grid { grid-template-columns: 1fr; gap: 10px; }
+  .module-card { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 12px; min-height: 96px; }
+  .module-icon { flex: 0 0 56px; width: 56px; height: 56px; font-size: 1.4rem; }
+  .module-title { font-size: 1rem; }
+  .module-text { font-size: 0.86rem; color: #7a5a42; }
+  .module-card .streak-display-number { margin-left: auto; font-weight: 800; }
+
+  /* Make ranking table horizontally scrollable instead of squashing layout */
+  .ranking-area { padding: 1rem; }
+  .ranking-table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ranking-table thead, .ranking-table tbody, .ranking-table tr { display: table; width: 100%; table-layout: fixed; }
+  .ranking-table th, .ranking-table td { white-space: nowrap; }
+
+  /* Fix play button to bottom for easy reach */
+  .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
+}
+
 .book-circles .circle-orange { top: 0; left: 20%; }
 .book-circles .circle-purple { top: 15%; right: 5%; }
 .book-circles .circle-green { bottom: 10%; left: 25%; }
