@@ -107,6 +107,21 @@
     font-size: 1.3rem;
   }
 }
+
+/* Mobile menu adjustments */
+@media (max-width: 800px) {
+  .module-grid { display: block; padding: 0 1rem; }
+  .ranking-area { max-width: 100%; margin: 1rem 0; }
+  .ranking-table th, .ranking-table td { font-size: 0.95rem; }
+  .ranking-user-position { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .ranking-area { padding: 0.8rem; border-radius: 12px; }
+  .ranking-table th, .ranking-table td { padding: 0.4rem; font-size: 0.88rem; }
+  .ranking-area h2 { font-size: 1.05rem; }
+  .ranking-table { font-size: 0.9rem; }
+}
 /* ===== Reset e Base ===== */
 * {
   margin: 0;

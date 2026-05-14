@@ -840,6 +840,30 @@ body {
   padding-left: 1rem;
 }
 
+/* ===== Ajustes responsivos gerais ===== */
+@media (max-width: 800px) {
+  .auth-header h1 { font-size: 2rem; }
+  .auth-form, .auth-form .input-group input { max-width: 92%; }
+  .auth-form { padding: 1.25rem; }
+  .avatar-grid { grid-template-columns: repeat(4, 1fr); }
+  .install-btn { right: 12px; bottom: 80px; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .auth-header h1 { font-size: 1.6rem; }
+  .auth-form { padding: 0.9rem; border-radius: 12px; }
+  .auth-form h2 { font-size: 1.2rem; }
+  .input-group input { padding: 0.7rem 0.9rem; font-size: 0.95rem; }
+  .btn-auth { padding: 0.85rem; font-size: 0.95rem; border-radius: 10px; }
+  .avatar-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+  .install-btn { display: inline-flex; }
+  .modal-card { margin: 0 12px; }
+  .avatar-preview { font-size: 3rem; }
+  .input-group label { font-size: 0.9rem; }
+  .auth-switch { font-size: 0.9rem; }
+}
+
 .input-group input:focus {
   outline: none;
   transform: translateY(-1px);

@@ -398,6 +398,25 @@ body {
   font-weight: 800;
 }
 
+/* Responsividade Tela de Fase */
+@media (max-width: 900px) {
+  .fase-scene { width: 100%; padding: 0 12px; }
+  .hero-card { padding: 16px; border-radius: 18px; }
+  .hero-card h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); }
+  .mission-stop { grid-template-columns: 64px 1fr 72px; gap: 10px; padding: 12px; border-radius: 18px; }
+  .mission-node { width: 64px; height: 64px; }
+  .mission-number { width: 48px; height: 48px; font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .mission-stop { grid-template-columns: 56px 1fr 56px; gap: 8px; padding: 10px; }
+  .mission-node { width: 56px; height: 56px; }
+  .mini-circle { width: 28px; height: 28px; }
+  .logo-mini { width: 60px; height: 60px; }
+  .hero-text { font-size: 0.98rem; padding: 0 6px; }
+  .trilha-panel, .hero-card { box-shadow: none; }
+}
+
 .mission-content {
   display: flex;
   flex-direction: column;

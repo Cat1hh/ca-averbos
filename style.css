@@ -723,6 +723,33 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* ===== Responsive fixes ===== */
+@media (max-width: 800px) {
+  .title { font-size: 2.25rem; margin-bottom: 1.25rem; }
+  .logo-container { width: 140px; height: 140px; }
+  .form-card { padding: 1.25rem; max-width: 92%; }
+  .cadastro-card { max-width: 540px; }
+  .page-content { padding: 1.25rem; }
+  .doodle.sun, .doodle.rainbow { right: 60px; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .logo-container { width: 110px; height: 110px; margin-bottom: 0.75rem; }
+  .logo-circles .circle { width: 50px; height: 50px; }
+  .title { font-size: 1.75rem; margin-bottom: 1rem; text-align: center; }
+  .form-card { padding: 1rem; border-radius: 14px; max-width: 96%; }
+  .input-group input { padding-left: 2.25rem; font-size: 0.98rem; }
+  .btn-primary { padding: 0.8rem 1rem; font-size: 1rem; }
+  .corner-emoji { font-size: 1.4rem; }
+  .doodles, .floating-elements { display: none; }
+  .book { width: 220px; height: 300px; }
+  .notebook-background { padding: 0.5rem; }
+  .home-header { padding: 0.5rem; }
+  .avatar-display { width: 80px; height: 80px; font-size: 2.25rem; }
+  .avatar-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
 /* ===== Home Header ===== */
 .home-header {
   display: flex;
