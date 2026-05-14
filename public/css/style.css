@@ -339,7 +339,6 @@
 
 /* Install button (mobile only) */
 .install-btn {
-  display: none;
   position: fixed;
   right: 16px;
   bottom: 90px;

@@ -186,13 +186,19 @@ function initPWAInstall() {
   // Detect iOS
   const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
   const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
+
+  if (isMobile && !isInStandaloneMode) {
+    installBtn.style.display = 'inline-flex';
+    installBtn.setAttribute('aria-hidden', 'false');
+  }
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    // show button on mobile
-    if (window.matchMedia && window.matchMedia('(max-width: 800px)').matches) {
-      installBtn.style.display = 'inline-block';
+    // mantém o botão visível no mobile e só ativa o prompt quando disponível
+    if (isMobile && !isInStandaloneMode) {
+      installBtn.style.display = 'inline-flex';
       installBtn.setAttribute('aria-hidden', 'false');
     }
   });
@@ -202,8 +208,8 @@ function initPWAInstall() {
     installBtn.style.display = 'none';
   } else if (isIos) {
     // On iOS there is no beforeinstallprompt; show button to display instructions on mobile Safari
-    if (window.matchMedia && window.matchMedia('(max-width: 800px)').matches) {
-      installBtn.style.display = 'inline-block';
+    if (isMobile) {
+      installBtn.style.display = 'inline-flex';
       installBtn.setAttribute('aria-hidden', 'false');
     }
   }
@@ -221,7 +227,7 @@ function initPWAInstall() {
       installBtn.style.display = 'none';
     } else {
       // iOS or unsupported - show instructions
-      showPopup('Instalar app', 'Para adicionar o atalho no iPhone/iPad: abra o menu do Safari (ícone de compartilhar) e escolha "Adicionar à Tela de Início".\n\nNo Android/Chrome: toque em "Instalar" quando o prompt aparecer.', {});
+      showPopup('Instalar app', 'Para adicionar o atalho no iPhone/iPad: toque em Compartilhar no Safari e escolha "Adicionar à Tela de Início". No Android/Chrome, toque em "Instalar" quando o navegador mostrar o aviso.', {});
     }
   });
 
