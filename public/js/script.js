@@ -174,7 +174,66 @@ document.addEventListener('DOMContentLoaded', () => {
   loadRanking();
   updateStreakBadge();
   updateProfileLevelBadge();
+  initPWAInstall();
 });
+
+// ===== PWA / Install prompt handling =====
+let deferredPrompt = null;
+function initPWAInstall() {
+  const installBtn = document.getElementById('install-btn');
+  if (!installBtn) return;
+
+  // Detect iOS
+  const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+  const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // show button on mobile
+    if (window.matchMedia && window.matchMedia('(max-width: 800px)').matches) {
+      installBtn.style.display = 'inline-block';
+      installBtn.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  // If already installed or in standalone, hide
+  if (isInStandaloneMode) {
+    installBtn.style.display = 'none';
+  } else if (isIos) {
+    // On iOS there is no beforeinstallprompt; show button to display instructions on mobile Safari
+    if (window.matchMedia && window.matchMedia('(max-width: 800px)').matches) {
+      installBtn.style.display = 'inline-block';
+      installBtn.setAttribute('aria-hidden', 'false');
+    }
+  }
+
+  installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+      } else {
+        console.log('User dismissed the A2HS prompt');
+      }
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    } else {
+      // iOS or unsupported - show instructions
+      showPopup('Instalar app', 'Para adicionar o atalho no iPhone/iPad: abra o menu do Safari (ícone de compartilhar) e escolha "Adicionar à Tela de Início".\n\nNo Android/Chrome: toque em "Instalar" quando o prompt aparecer.', {});
+    }
+  });
+
+  // Register service worker to make site installable
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js').then(() => {
+      console.log('Service worker registrado');
+    }).catch((err) => {
+      console.warn('Falha ao registrar service worker:', err);
+    });
+  }
+}
 // ===== Funções Auxiliares =====
 function getAuthToken() {
   return localStorage.getItem('cacaVerbosToken');

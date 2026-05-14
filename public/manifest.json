@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "Caça Verbos",
   "short_name": "CaçaVerbos",
@@ -18,3 +19,25 @@
     }
   ]
 }
+=======
+{
+  "name": "Caça Verbos",
+  "short_name": "CaçaVerbos",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f5a623",
+  "icons": [
+    {
+      "src": "/html/logo%20cacverbos.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/html/logo%20cacverbos.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+>>>>>>> 249ea1f (feat(pwa): add install button, manifest and service worker; handle install prompt)

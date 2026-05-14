@@ -337,6 +337,26 @@
   max-width: 500px;
 }
 
+/* Install button (mobile only) */
+.install-btn {
+  display: none;
+  position: fixed;
+  right: 16px;
+  bottom: 90px;
+  z-index: 1100;
+  background: linear-gradient(135deg, #f5a623, #ff8a5b);
+  color: #fff;
+  border: none;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 8px 30px rgba(245,166,35,0.3);
+}
+
+@media (max-width: 800px) {
+  .install-btn { display: inline-block; }
+}
+
 .avatar-selector {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
