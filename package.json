@@ -15,7 +15,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
-    "serverless-http": "^2.8.0"
+    "serverless-http": "^2.4.3"
   },
   "devDependencies": {
     "@ljharb/tsconfig": "^0.3.2"
