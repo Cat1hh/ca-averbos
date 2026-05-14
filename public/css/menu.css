@@ -126,8 +126,8 @@
 /* Mobile-only carousel for first modules */
 @media (max-width: 480px) {
   .mobile-carousel-wrap { display: flex; align-items: center; gap: 0.5rem; width: 100%; position: relative; }
-  .mobile-carousel { display: flex; gap: 0.6rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0.4rem 56px; flex: 1; }
-  .mobile-carousel .module-card { min-width: 140px; max-width: 260px; flex: 0 0 auto; scroll-snap-align: center; border-radius: 16px; }
+  .mobile-carousel { display: flex; gap: 0.6rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0.6rem 80px; flex: 1; align-items: center; scroll-padding-inline: 80px; }
+  .mobile-carousel .module-card { min-width: 150px; max-width: 260px; flex: 0 0 auto; scroll-snap-align: center; border-radius: 16px; box-sizing: border-box; }
   .carousel-btn { background: rgba(255,255,255,0.95); border: 0; width: 44px; height: 44px; border-radius: 999px; font-size: 1.6rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.16); position: absolute; top: 50%; transform: translateY(-50%); z-index: 40; }
   .carousel-prev { left: 10px; }
   .carousel-next { right: 10px; }

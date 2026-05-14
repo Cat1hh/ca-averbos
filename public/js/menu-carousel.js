@@ -32,7 +32,7 @@
     carousel.addEventListener('scroll', throttle(updateArrows, 100));
     window.addEventListener('resize', throttle(updateArrows, 150));
     // initial
-    setTimeout(updateArrows, 100);
+    setTimeout(()=>{ updateArrows(); centerFirst(); }, 120);
 
     // enable swipe dragging (desktop touch fallback handled by browser)
     let isDown = false, startX=0, scrollLeft=0;
@@ -46,6 +46,16 @@
       if(e.key === 'ArrowLeft') { scrollByDir(-1); }
       if(e.key === 'ArrowRight') { scrollByDir(1); }
     });
+
+    function centerFirst(){
+      try{
+        const first = carousel.children[0];
+        if(!first) return;
+        const offset = Math.max(0, first.offsetLeft - (carousel.clientWidth - first.clientWidth)/2);
+        carousel.scrollTo({ left: offset, behavior: 'smooth' });
+      }catch(e){ /* ignore */ }
+    }
+    window.addEventListener('resize', throttle(()=>{ centerFirst(); updateArrows(); }, 200));
   }
 
   function throttle(fn, wait){ let t=null; return function(...a){ if(t) return; t=setTimeout(()=>{ fn(...a); t=null; }, wait); }; }
