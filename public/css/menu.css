@@ -157,6 +157,21 @@ body {
   overflow-x: hidden;
 }
 
+:root{
+  --base-font: clamp(14px, 1.8vw, 18px);
+  --heading-scale: 1.8;
+  --muted: #7a5a42;
+  --card-min: 220px;
+  --cta-height: 72px;
+}
+
+html { font-size: var(--base-font); }
+
+h1 { font-size: clamp(1.6rem, 3.6vw, 2.4rem); }
+h2 { font-size: clamp(1.1rem, 2.4vw, 1.6rem); }
+.module-title { font-size: clamp(0.95rem, 2.2vw, 1.05rem); }
+.module-text { font-size: clamp(0.8rem, 1.8vw, 0.95rem); color: var(--muted); }
+
 /* ===== Páginas ===== */
 .page {
   display: none;
@@ -1109,13 +1124,16 @@ body {
 
 .module-section .module-grid {
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+  gap: 1rem;
 }
 
 .btn-play-main {
   width: 100%;
-  max-width: 300px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 14px 22px;
   border: 4px solid #5a3d2b;
   border-radius: 999px;
   background: linear-gradient(180deg, #f5a623, #ff8a5b);
@@ -1490,6 +1508,12 @@ body {
   /* Fix play button to bottom for easy reach */
   .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
 }
+
+/* CTA hidden state */
+.btn-play-main.hidden-cta { transform: translateX(-50%) translateY(120%); opacity: 0; pointer-events: none; transition: transform 220ms ease, opacity 200ms ease; }
+
+/* Ensure main content isn't covered on small screens */
+.menu-shell { padding-bottom: calc(var(--cta-height) + 24px + env(safe-area-inset-bottom)); }
 
 /* Reserve space so fixed play button doesn't cover content */
 @media (max-width: 640px) {
