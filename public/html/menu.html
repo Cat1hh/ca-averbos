@@ -11,6 +11,7 @@
   <link rel="icon" href="/html/logo%20cacverbos.png" type="image/png">
   <link rel="stylesheet" href="../css/menu.css">
   <script defer src="/js/menu-responsive.js"></script>
+  <script defer src="/js/menu-carousel.js"></script>
 </head>
 <body>
   <div id="home-page" class="page active">
@@ -92,23 +93,30 @@
       <section class="module-section">
         <div class="module-grid">
 
-          <button class="module-card" onclick="openVerbLibrary()">
-            <span class="module-icon">📚</span>
-            <span class="module-title">Biblioteca de Verbos</span>
-            <span class="module-text">Ver verbos aprendidos e seus usos</span>
-          </button>
+          <!-- Mobile-only carousel for first three modules -->
+          <div class="mobile-carousel-wrap">
+            <button class="carousel-btn carousel-prev" aria-label="Anterior">‹</button>
+            <div class="mobile-carousel" role="list">
+              <button class="module-card" onclick="openVerbLibrary()" role="listitem">
+                <span class="module-icon">📚</span>
+                <span class="module-title">Biblioteca de Verbos</span>
+                <span class="module-text">Ver verbos aprendidos e seus usos</span>
+              </button>
 
-          <button class="module-card" onclick="openProfileDetailModal()">
-            <span class="module-icon">👤</span>
-            <span class="module-title">Perfil</span>
-            <span class="module-text">Nível <span id="profile-level-badge">1</span></span>
-          </button>
+              <button class="module-card" onclick="openProfileDetailModal()" role="listitem">
+                <span class="module-icon">👤</span>
+                <span class="module-title">Perfil</span>
+                <span class="module-text">Nível <span id="profile-level-badge">1</span></span>
+              </button>
 
-          <div class="module-card streak-display-card" onclick="openStreakModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openStreakModal()">
-            <span class="module-icon">🔥</span>
-            <span class="module-title">Sua Ofensiva</span>
-            <div class="streak-display-number" id="streak-display-number">0</div>
-            <span class="module-text">dias consecutivos</span>
+              <div class="module-card streak-display-card" onclick="openStreakModal()" role="listitem" tabindex="0" onkeypress="if(event.key==='Enter') openStreakModal()">
+                <span class="module-icon">🔥</span>
+                <span class="module-title">Sua Ofensiva</span>
+                <div class="streak-display-number" id="streak-display-number">0</div>
+                <span class="module-text">dias consecutivos</span>
+              </div>
+            </div>
+            <button class="carousel-btn carousel-next" aria-label="Próximo">›</button>
           </div>
 
           <section id="ranking-area" class="ranking-area module-card" onclick="openRankingModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openRankingModal()">

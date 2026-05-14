@@ -122,6 +122,25 @@
   .ranking-area h2 { font-size: 1.05rem; }
   .ranking-table { font-size: 0.9rem; }
 }
+
+/* Mobile-only carousel for first modules */
+@media (max-width: 480px) {
+  .mobile-carousel-wrap { display: flex; align-items: center; gap: 0.5rem; width: 100%; }
+  .mobile-carousel { display: flex; gap: 0.6rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0.4rem 0.2rem; flex: 1; }
+  .mobile-carousel .module-card { min-width: var(--card-min, 180px); flex: 0 0 auto; scroll-snap-align: center; border-radius: 16px; }
+  .carousel-btn { background: rgba(255,255,255,0.9); border: 0; width: 40px; height: 40px; border-radius: 999px; font-size: 1.6rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .carousel-prev, .carousel-next { flex: 0 0 auto; }
+  .carousel-btn:disabled { opacity: 0.35; cursor: default; }
+  /* Hide desktop grid spacing that could interfere */
+  .module-grid { padding: 0 0.6rem; }
+}
+
+/* Desktop/tablet: keep original layout, hide carousel controls */
+@media (min-width: 481px) {
+  .mobile-carousel-wrap { display: contents; }
+  .mobile-carousel { display: contents; }
+  .carousel-btn { display: none; }
+}
 /* ===== Reset e Base ===== */
 * {
   margin: 0;
