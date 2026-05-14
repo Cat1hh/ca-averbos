@@ -1504,16 +1504,16 @@ body {
   .module-card .streak-display-number { margin-left: auto; font-weight: 800; }
 
   /* Make ranking table horizontally scrollable instead of squashing layout */
-  .ranking-area { padding: 1rem; }
-  .ranking-table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .ranking-table thead { display: table; width: 100%; min-width: 600px; table-layout: auto; }
-  .ranking-table tbody { display: table; width: 100%; min-width: 600px; table-layout: auto; }
-  .ranking-table tr { display: table-row; }
-  .ranking-table th, .ranking-table td { white-space: nowrap; padding: 0.85rem 1rem; font-size: 1.05rem; min-width: 80px; }
-  .ranking-table th { background: #f5e6c8; }
-  .ranking-area h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-  .ranking-user-position { font-size: 1.05rem; margin-top: 1rem; }
-  .ranking-area .section-heading { margin-bottom: 1rem; }
+  .ranking-area { padding: 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ranking-table { width: auto; min-width: 100%; border-collapse: separate; border-spacing: 0; }
+  .ranking-table th, .ranking-table td { white-space: nowrap; padding: 1rem 1.2rem; font-size: 1.1rem; }
+  .ranking-table th { background: #f5e6c8; color: #a67c52; font-weight: 700; border-bottom: 3px solid #e8c98e; }
+  .ranking-table td { color: #5a3d2b; font-weight: 500; }
+  .ranking-table tr:nth-child(even) { background: #f9f3e6; }
+  .ranking-table tr:nth-child(odd) { background: #fffbe6; }
+  .ranking-area h2 { font-size: 1.2rem; margin-bottom: 1rem; }
+  .ranking-area .section-heading { margin-bottom: 0.5rem; }
+  .ranking-user-position { font-size: 1rem; margin-top: 1rem; }
 
   /* Fix play button to bottom for easy reach */
   .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
