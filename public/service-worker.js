@@ -1,8 +1,9 @@
-const CACHE_NAME = 'caca-verbos-v1';
+const CACHE_NAME = 'caca-verbos-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
+  '/manifest.json',
   '/html/logo%20cacverbos.png',
   '/js/script.js'
 ];

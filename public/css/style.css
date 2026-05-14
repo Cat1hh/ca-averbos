@@ -339,6 +339,7 @@
 
 /* Install button (mobile only) */
 .install-btn {
+  display: none;
   position: fixed;
   right: 16px;
   bottom: 90px;
@@ -353,7 +354,7 @@
 }
 
 @media (max-width: 800px) {
-  .install-btn { display: inline-block; }
+  .install-btn { display: inline-flex; }
 }
 
 .avatar-selector {
