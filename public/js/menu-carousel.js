@@ -51,8 +51,8 @@
       try{
         const first = carousel.children[0];
         if(!first) return;
-        const offset = Math.max(0, first.offsetLeft - (carousel.clientWidth - first.clientWidth)/2);
-        carousel.scrollTo({ left: offset, behavior: 'smooth' });
+        // prefer scrollIntoView center which respects scroll-padding
+        first.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
       }catch(e){ /* ignore */ }
     }
     window.addEventListener('resize', throttle(()=>{ centerFirst(); updateArrows(); }, 200));

@@ -134,6 +134,9 @@
   .carousel-btn:disabled { opacity: 0.35; cursor: default; }
   /* Hide desktop grid spacing that could interfere */
   .module-grid { padding: 0 0.6rem; }
+  .module-grid .ranking-area { grid-column: 1 / -1; }
+  .ranking-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ranking-table { min-width: 360px; }
 }
 
 /* Desktop/tablet: keep original layout, hide carousel controls */
