@@ -90,7 +90,25 @@
 
       <section class="module-section">
         <div class="module-grid">
-         
+
+          <button class="module-card" onclick="openVerbLibrary()">
+            <span class="module-icon">📚</span>
+            <span class="module-title">Biblioteca de Verbos</span>
+            <span class="module-text">Ver verbos aprendidos e seus usos</span>
+          </button>
+
+          <button class="module-card" onclick="openProfileDetailModal()">
+            <span class="module-icon">👤</span>
+            <span class="module-title">Perfil</span>
+            <span class="module-text">Nível <span id="profile-level-badge">1</span></span>
+          </button>
+
+          <div class="module-card streak-display-card" onclick="openStreakModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openStreakModal()">
+            <span class="module-icon">🔥</span>
+            <span class="module-title">Sua Ofensiva</span>
+            <div class="streak-display-number" id="streak-display-number">0</div>
+            <span class="module-text">dias consecutivos</span>
+          </div>
 
           <section id="ranking-area" class="ranking-area module-card" onclick="openRankingModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openRankingModal()">
             <div class="section-heading">
