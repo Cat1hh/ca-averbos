@@ -1506,15 +1506,14 @@ body {
   /* Make ranking table horizontally scrollable instead of squashing layout */
   .ranking-area { padding: 1rem; }
   .ranking-table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .ranking-table thead, .ranking-table tbody { display: table; width: auto; min-width: 520px; table-layout: auto; }
+  .ranking-table thead { display: table; width: 100%; min-width: 600px; table-layout: auto; }
+  .ranking-table tbody { display: table; width: 100%; min-width: 600px; table-layout: auto; }
   .ranking-table tr { display: table-row; }
-  .ranking-table th, .ranking-table td { white-space: nowrap; padding: 0.7rem 0.9rem; font-size: 1rem; }
-  .ranking-area h2 { font-size: 1.15rem; }
-  .ranking-user-position { font-size: 1.05rem; }
-  /* make ranking area split: heading left, table scroll right on narrow screens */
-  .ranking-area { display: flex; gap: 0.8rem; align-items: flex-start; }
-  .ranking-area .section-heading { flex: 0 0 36%; }
-  .ranking-area .ranking-table { flex: 1 1 auto; }
+  .ranking-table th, .ranking-table td { white-space: nowrap; padding: 0.85rem 1rem; font-size: 1.05rem; min-width: 80px; }
+  .ranking-table th { background: #f5e6c8; }
+  .ranking-area h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+  .ranking-user-position { font-size: 1.05rem; margin-top: 1rem; }
+  .ranking-area .section-heading { margin-bottom: 1rem; }
 
   /* Fix play button to bottom for easy reach */
   .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
