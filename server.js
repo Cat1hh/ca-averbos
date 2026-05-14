@@ -4,11 +4,11 @@ import crypto from 'crypto';
 import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
+import dbPool from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,17 +16,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
-
-const dbPool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT || 3307),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'caca_verbos',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -72,10 +61,27 @@ function createAccessToken(user) {
 
 app.get('/api/health', async (_req, res) => {
   try {
-    await dbPool.query('SELECT 1');
-    res.json({ ok: true });
+    const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DATABASE_URL || process.env.SUPABASE_DB_URL || 'NOT SET';
+    const hasDbUrl = dbUrl !== 'NOT SET';
+    
+    let dbStatus = 'Not tested';
+    try {
+      await dbPool.query('SELECT 1');
+      dbStatus = 'OK';
+    } catch (dbError) {
+      dbStatus = `FAILED: ${dbError.message}`;
+    }
+    
+    res.json({ 
+      ok: hasDbUrl && dbStatus === 'OK', 
+      database_url_configured: hasDbUrl,
+      database_status: dbStatus,
+      environment: process.env.NODE_ENV || 'development',
+      vercel: Boolean(process.env.VERCEL)
+    });
   } catch (error) {
-    res.status(500).json({ ok: false, message: 'Banco indisponivel.' });
+    console.error('[HEALTH] Unexpected error:', error);
+    res.status(500).json({ ok: false, message: 'Erro ao verificar saúde da API.' });
   }
 });
 
@@ -124,8 +130,18 @@ app.post('/api/auth/register', async (req, res) => {
 
     return res.status(201).json({ message: 'Cadastro realizado com sucesso.' });
   } catch (error) {
-    console.error('register error', error);
-    return res.status(500).json({ message: 'Erro interno no cadastro.' });
+    console.error('[REGISTER] Erro detalhado:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      hint: error.hint
+    });
+    const errorMessage = error.code === 'ER_DUP_ENTRY' 
+      ? 'E-mail já cadastrado.'
+      : error.message?.includes('DATABASE') 
+      ? 'Erro de conexão com banco de dados.'
+      : 'Erro interno no cadastro.';
+    return res.status(500).json({ message: errorMessage });
   }
 });
 
@@ -189,8 +205,16 @@ app.post('/api/auth/login', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('login error', error);
-    return res.status(500).json({ message: 'Erro interno no login.' });
+    console.error('[LOGIN] Erro detalhado:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      hint: error.hint
+    });
+    const errorMessage = error.message?.includes('DATABASE')
+      ? 'Erro de conexão com banco de dados.'
+      : 'Erro interno no login.';
+    return res.status(500).json({ message: errorMessage });
   }
 });
 
@@ -295,7 +319,7 @@ app.post('/api/progression/complete', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    const currentPhase = Number(user.current_phase || 1);
+    const currentPhase = Number(user.current_phase ?? 1);
     const nextPhase = completedLevel === 1 ? 2 : completedLevel === 2 ? 3 : currentPhase;
     const updatedPhase = Math.max(currentPhase, nextPhase);
 
@@ -330,7 +354,7 @@ app.post('/api/progression/chest/open', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    if (Number(user.current_phase || 1) < 3) {
+    if (Number(user.current_phase ?? 1) < 3) {
       return res.status(403).json({ message: 'Baú ainda bloqueado.' });
     }
 
@@ -449,7 +473,7 @@ app.get('/api/streak', authenticateToken, async (req, res) => {
     let logs = [];
     try {
       const [logsRows] = await dbPool.execute(
-        `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+        `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= CURRENT_DATE - INTERVAL '6 days' ORDER BY play_date DESC`,
         [userId]
       );
       logs = Array.isArray(logsRows) ? logsRows : [];
@@ -545,7 +569,7 @@ app.post('/api/streak', authenticateToken, async (req, res) => {
       let logs = [];
       try {
         const [logsRows] = await dbPool.execute(
-          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= CURRENT_DATE - INTERVAL '6 days' ORDER BY play_date DESC`,
           [userId]
         );
         logs = Array.isArray(logsRows) ? logsRows : [];
@@ -569,7 +593,7 @@ app.post('/api/streak', authenticateToken, async (req, res) => {
       let logs = [];
       try {
         const [logsRows] = await dbPool.execute(
-          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) ORDER BY play_date DESC`,
+          `SELECT play_date, minutes_played FROM play_logs WHERE user_id = ? AND play_date >= CURRENT_DATE - INTERVAL '6 days' ORDER BY play_date DESC`,
           [userId]
         );
         logs = Array.isArray(logsRows) ? logsRows : [];
@@ -817,11 +841,11 @@ app.get('*', (_req, res) => {
 async function ensureScoresVerbsColumn() {
   try {
     const [rows] = await dbPool.execute(
-      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'scores' AND COLUMN_NAME = 'verbs_completed' LIMIT 1"
+      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'public' AND TABLE_NAME = 'scores' AND COLUMN_NAME = 'verbs_completed' LIMIT 1"
     );
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      await dbPool.execute('ALTER TABLE scores ADD COLUMN verbs_completed INT NOT NULL DEFAULT 0 AFTER points');
+      await dbPool.execute('ALTER TABLE scores ADD COLUMN verbs_completed INT NOT NULL DEFAULT 0');
     }
   } catch (error) {
     console.error('Erro ao garantir coluna verbs_completed:', error);
@@ -831,12 +855,12 @@ async function ensureScoresVerbsColumn() {
 async function ensureStreakColumns() {
   try {
     const [rows] = await dbPool.execute(
-      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'streaks' AND COLUMN_NAME = 'last_played_at' LIMIT 1"
+      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'public' AND TABLE_NAME = 'streaks' AND COLUMN_NAME = 'last_played_at' LIMIT 1"
     );
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      await dbPool.execute('ALTER TABLE streaks ADD COLUMN last_played_at DATETIME NULL AFTER longest_streak');
-      await dbPool.execute('UPDATE streaks SET last_played_at = CAST(CONCAT(last_played_date, " 00:00:00") AS DATETIME) WHERE last_played_at IS NULL AND last_played_date IS NOT NULL');
+      await dbPool.execute('ALTER TABLE streaks ADD COLUMN last_played_at TIMESTAMP NULL');
+      await dbPool.execute('UPDATE streaks SET last_played_at = last_played_date::timestamp WHERE last_played_at IS NULL AND last_played_date IS NOT NULL');
     }
   } catch (error) {
     console.error('Erro ao garantir coluna last_played_at:', error);
@@ -846,15 +870,15 @@ async function ensureStreakColumns() {
 async function ensureUserProgressColumns() {
   try {
     const checks = [
-      { name: 'current_phase', ddl: 'ALTER TABLE users ADD COLUMN current_phase INT NOT NULL DEFAULT 1 AFTER updated_at' },
-      { name: 'bonus_lives', ddl: 'ALTER TABLE users ADD COLUMN bonus_lives INT NOT NULL DEFAULT 0 AFTER current_phase' },
-      { name: 'chest_claimed_at', ddl: 'ALTER TABLE users ADD COLUMN chest_claimed_at DATETIME NULL AFTER bonus_lives' },
-      { name: 'achievements', ddl: 'ALTER TABLE users ADD COLUMN achievements TEXT NULL AFTER chest_claimed_at' },
+      { name: 'current_phase', ddl: 'ALTER TABLE users ADD COLUMN current_phase INT NOT NULL DEFAULT 0' },
+      { name: 'bonus_lives', ddl: 'ALTER TABLE users ADD COLUMN bonus_lives INT NOT NULL DEFAULT 0' },
+      { name: 'chest_claimed_at', ddl: 'ALTER TABLE users ADD COLUMN chest_claimed_at TIMESTAMP NULL' },
+      { name: 'achievements', ddl: 'ALTER TABLE users ADD COLUMN achievements TEXT NULL' },
     ];
 
     for (const column of checks) {
       const [rows] = await dbPool.execute(
-        'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "users" AND COLUMN_NAME = ? LIMIT 1',
+        'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = \'public\' AND TABLE_NAME = "users" AND COLUMN_NAME = ? LIMIT 1',
         [column.name]
       );
 
