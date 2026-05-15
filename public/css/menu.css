@@ -3292,55 +3292,37 @@ body {
     --card-min: 220px;
     --page-gap: 14px;
   }
+
   html { font-size: var(--base-font); }
 
-  /* Ensure play button won't cover content */
-  .menu-shell { padding-bottom: 140px; }
+  /* Keep content clear of the fixed CTA without changing the desktop grid. */
+  .menu-shell { padding-bottom: calc(var(--cta-height) + 24px + env(safe-area-inset-bottom)); }
 
-  /* Responsive grid: let cards flow naturally */
-  .module-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
-    gap: var(--page-gap);
-  }
-
-  .module-card {
-    border-radius: 18px;
-    padding: 16px;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 8px;
-  }
-
-  /* Compact row style on very small screens */
-  @media (max-width: 480px) {
-    .module-card { flex-direction: row; align-items: center; min-height: 88px; padding: 12px; }
-    .module-icon { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 12px; }
-    .module-title { font-size: 1rem; }
-    .module-text { font-size: 0.86rem; }
-    .menu-shell { padding-bottom: 110px; }
-    /* horizontal scroll for ranking table */
-    .ranking-area .ranking-table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .ranking-area .ranking-table table, .ranking-area .ranking-table thead, .ranking-area .ranking-table tbody { width: 100%; }
-  }
-
-  /* Slightly larger small screens: two columns */
-  @media (min-width: 481px) and (max-width: 900px) {
-    .module-grid { grid-template-columns: repeat(2, minmax(var(--card-min), 1fr)); }
+  @media (max-width: 900px) {
+    .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--page-gap); }
     .module-card { padding: 14px; }
   }
 
-  /* Keep play button accessible on mobile */
-  @media (max-width: 900px) {
-    .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 12px 18px; z-index: 60; }
-  }
+  @media (max-width: 480px) {
+    .module-grid { grid-template-columns: 1fr; }
+    .module-card { flex-direction: row; align-items: center; min-height: 96px; padding: 12px; }
+    .module-icon { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 12px; }
+    .module-title { font-size: 1rem; }
+    .module-text { font-size: 0.86rem; }
+    .module-card .streak-display-number { margin-left: auto; font-weight: 800; }
 
-  /* Minor visual tweaks for very large screens */
-  @media (min-width: 1400px) {
-    .module-grid { gap: 20px; }
-    .menu-shell { max-width: 1200px; margin: 0 auto; }
+    .ranking-area { padding: 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .ranking-table { width: auto; min-width: 100%; border-collapse: separate; border-spacing: 0; }
+    .ranking-table th, .ranking-table td { white-space: nowrap; padding: 1rem 1.2rem; font-size: 1.1rem; }
+    .ranking-table th { background: #f5e6c8; color: #a67c52; font-weight: 700; border-bottom: 3px solid #e8c98e; }
+    .ranking-table td { color: #5a3d2b; font-weight: 500; }
+    .ranking-table tr:nth-child(even) { background: #f9f3e6; }
+    .ranking-table tr:nth-child(odd) { background: #fffbe6; }
+    .ranking-area h2 { font-size: 1.2rem; margin-bottom: 1rem; }
+    .ranking-area .section-heading { margin-bottom: 0.5rem; }
+    .ranking-user-position { font-size: 1rem; margin-top: 1rem; }
+
+    .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
   }
   .verb-library-list { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:0.8rem; }
   .verb-item { background:#fff; border-radius:12px; padding:0.9rem; border:2px solid #f0e6d6; cursor:pointer; display:flex; flex-direction:column; gap:0.4rem; }

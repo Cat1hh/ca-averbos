@@ -28,7 +28,7 @@
           <img src="/html/logo%20cacverbos.png" alt="" aria-hidden="true" class="brand-mark">
           <span class="brand-text">Caça Verbos</span>
         </div>
-        <button class="btn-settings" onclick="openSettingsPanel()">⚙️</button>
+        <button class="btn-settings" type="button" onclick="openSettingsPanel()" aria-label="Abrir configurações">⚙️</button>
       </header>
 
       <section class="menu-hero">
@@ -98,29 +98,29 @@
           <div class="mobile-carousel-wrap">
             <button class="carousel-btn carousel-prev" aria-label="Anterior">‹</button>
             <div class="mobile-carousel" role="list">
-              <button class="module-card" onclick="openVerbLibrary()" role="listitem">
+              <button class="module-card" type="button" onclick="openVerbLibrary()" aria-label="Abrir biblioteca de verbos">
                 <span class="module-icon">📚</span>
                 <span class="module-title">Biblioteca de Verbos</span>
                 <span class="module-text">Ver verbos aprendidos e seus usos</span>
               </button>
 
-              <button class="module-card" onclick="openProfileDetailModal()" role="listitem">
+              <button class="module-card" type="button" onclick="openProfileDetailModal()" aria-label="Abrir perfil do jogador">
                 <span class="module-icon">👤</span>
                 <span class="module-title">Perfil</span>
                 <span class="module-text">Nível <span id="profile-level-badge">1</span></span>
               </button>
 
-              <div class="module-card streak-display-card" onclick="openStreakModal()" role="listitem" tabindex="0" onkeypress="if(event.key==='Enter') openStreakModal()">
+              <button class="module-card streak-display-card" type="button" onclick="openStreakModal()" aria-label="Abrir sua ofensiva">
                 <span class="module-icon">🔥</span>
                 <span class="module-title">Sua Ofensiva</span>
-                <div class="streak-display-number" id="streak-display-number">0</div>
+                <span class="streak-display-number" id="streak-display-number">0</span>
                 <span class="module-text">dias consecutivos</span>
-              </div>
+              </button>
             </div>
-            <button class="carousel-btn carousel-next" aria-label="Próximo">›</button>
+            <button class="carousel-btn carousel-next" type="button" aria-label="Próximo">›</button>
           </div>
 
-          <section id="ranking-area" class="ranking-area module-card" onclick="openRankingModal()" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openRankingModal()">
+            <section id="ranking-area" class="ranking-area module-card" role="button" tabindex="0" aria-label="Abrir ranking dos jogadores" onclick="openRankingModal()" onkeydown="if(event.key==='Enter' || event.key===' '){ event.preventDefault(); openRankingModal(); }">
             <div class="section-heading">
               <h2>Ranking dos Jogadores</h2>
               <p>Resumo do desempenho da turma.</p>
