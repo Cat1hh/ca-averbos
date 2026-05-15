@@ -1595,7 +1595,7 @@ function updateVolume(value) {
 
 function viewProfile() {
   closeSettingsPanel();
-  openProfilePanel();
+  openProfileDetailModal();
 }
 
 function openFeatureDemo(featureKey) {
