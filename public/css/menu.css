@@ -142,8 +142,29 @@
 
 /* Desktop/tablet: keep original layout, hide carousel controls */
 @media (min-width: 481px) {
-  .mobile-carousel-wrap { display: contents; }
-  .mobile-carousel { display: contents; }
+  .mobile-carousel-wrap {
+    display: block;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .mobile-carousel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .mobile-carousel .module-card {
+    min-width: 0;
+    max-width: none;
+  }
+
+  .module-grid .ranking-area {
+    grid-column: 1 / -1;
+  }
+
   .carousel-btn { display: none; }
 }
 /* ===== Reset e Base ===== */
