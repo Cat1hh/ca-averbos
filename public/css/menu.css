@@ -1540,9 +1540,6 @@ body {
   .btn-play-main { position: fixed; left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 12px); width: calc(100% - 32px); max-width: 720px; padding: 14px; z-index: 60; }
 }
 
-/* CTA hidden state */
-.btn-play-main.hidden-cta { transform: translateX(-50%) translateY(120%); opacity: 0; pointer-events: none; transition: transform 220ms ease, opacity 200ms ease; }
-
 /* Ensure main content isn't covered on small screens */
 .menu-shell { padding-bottom: calc(var(--cta-height) + 24px + env(safe-area-inset-bottom)); }
 
