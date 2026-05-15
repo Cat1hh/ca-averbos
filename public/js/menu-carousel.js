@@ -3,6 +3,8 @@
   function qa(sel, ctx) { return Array.from((ctx||document).querySelectorAll(sel)); }
 
   function initCarousel(){
+    if (window.innerWidth > 480) return;
+
     const wrap = q('.mobile-carousel-wrap');
     if(!wrap) return;
     const carousel = q('.mobile-carousel', wrap);
